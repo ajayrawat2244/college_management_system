@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Fee Detail | SMS{% endblock %}
+{% block page_title %}Fee Detail{% endblock %}
+{% block page_subtitle %}Record summary, installments, and student wallet usage.{% endblock %}
+{% block content %}
+<div class="grid-2">
+  <section class="card">
+    <h2 style="font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-.03em;margin:0 0 4px;">{{ fee_record.student.user.name }}</h2>
+    <p class="muted" style="font-size:.83rem;margin:0 0 2px;">Fee Record Summary</p>
+    <div class="detail-list">
+      <div><span>Total Fees</span><strong>&#8377;{{ fee_record.total_fees }}</strong></div>
+      <div><span>Paid Amount</span><strong style="color:var(--success);">&#8377;{{ fee_record.paid_amount }}</strong></div>
+      <div><span>Pending Amount</span><strong style="color:var(--danger);">&#8377;{{ fee_record.pending_amount }}</strong></div>
+      <div><span>Academic Year</span><strong>{{ fee_record.academic_year }}</strong></div>
+    </div>
+    {% if fee_record.total_fees %}
+    <div class="fee-progress">
+      <div class="fee-progress-label">
+        <span>Paid &#8377;{{ fee_record.paid_amount }}</span>
+        <span>of &#8377;{{ fee_record.total_fees }}</span>
+      </div>
+      <div class="fee-progress-track">
+        <div class="fee-progress-fill" style="width:calc(({{ fee_record.paid_amount }} / {{ fee_record.total_fees }}) * 100%)"></div>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Installments</h2></div>
+    <div class="stack-list">
+      {% for installment in fee_record.installments.all %}
+        <div class="stack-item">
+          <span>Installment {{ installment.installment_no }} &mdash; {{ installment.title }}</span>
+          <strong>&#8377;{{ installment.amount }}</strong>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="padding:36px 0;">No installments added.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

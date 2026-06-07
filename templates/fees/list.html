@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Fees | SMS{% endblock %}
+{% block page_title %}Fees{% endblock %}
+{% block page_subtitle %}Fee records, installments, wallet balances, and payment progress.{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>Fee Records</h2>
+    <a class="btn btn-primary" href="#">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Fee Record
+    </a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th><th>Academic Year</th><th>Total</th><th>Paid</th><th>Pending</th><th>Progress</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fee in fee_records %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ fee.student.user.name|first }}</div>
+                <div class="cell-name">{{ fee.student.user.name }}</div>
+              </div>
+            </td>
+            <td>{{ fee.academic_year }}</td>
+            <td style="font-weight:600;">&#8377;{{ fee.total_fees }}</td>
+            <td style="color:var(--success);font-weight:600;">&#8377;{{ fee.paid_amount }}</td>
+            <td style="color:var(--danger);font-weight:600;">&#8377;{{ fee.pending_amount }}</td>
+            <td>
+              {% if fee.total_fees %}
+              <div class="fee-progress-track" style="width:80px;">
+                <div class="fee-progress-fill" style="width:calc(({{ fee.paid_amount }} / {{ fee.total_fees }}) * 100%)"></div>
+              </div>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if fee.is_fully_paid %}success{% else %}warning{% endif %}">
+                {% if fee.is_fully_paid %}Paid{% else %}Pending{% endif %}
+              </span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="empty-state">No fee records found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

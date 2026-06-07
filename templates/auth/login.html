@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Student Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="auth-page">
+  <div class="auth-shell">
+    <section class="auth-panel auth-branding">
+      <div class="brand-mark large">SMS</div>
+      <h1>Student Management System</h1>
+      <p>Multi-tenant dashboard for admissions, courses, fees, grading, and live class operations.</p>
+      <div class="feature-list">
+        <div>Tenant-aware workspace</div>
+        <div>Role-based access control</div>
+        <div>Modern college admin UI</div>
+      </div>
+    </section>
+
+    <section class="auth-panel auth-form-panel">
+      <h2>Welcome back</h2>
+      <span class="muted">Use your college account to continue.</span>
+      <form class="form-grid" method="post">
+        {% csrf_token %}
+        <label class="field">
+          <span>Email address</span>
+          <input type="email" name="email" placeholder="admin@college.com" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" placeholder="••••••••" required>
+        </label>
+        <button class="btn btn-primary btn-full" type="submit">Sign in to your account</button>
+      </form>
+    </section>
+  </div>
+</body>
+</html>

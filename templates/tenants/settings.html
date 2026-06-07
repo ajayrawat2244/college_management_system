@@ -1,0 +1,487 @@
+{% extends 'base.html' %}
+{% block title %}Tenant Settings | SMS{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block page_subtitle %}College profile, subdomain, workspace metadata, and UI customisation.{% endblock %}
+
+{% block content %}
+<div class="settings-layout">
+
+  <!-- ── Settings nav ─────────────────────────────────────── -->
+  <nav class="settings-nav" aria-label="Settings navigation">
+    <a class="settings-nav-link active" href="#college-profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      College Profile
+    </a>
+    <a class="settings-nav-link" href="#sidebar-topbar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Sidebar &amp; Topbar
+    </a>
+    <a class="settings-nav-link" href="#typography">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      Typography
+    </a>
+    <div class="settings-nav-divider"></div>
+    <a class="settings-nav-link" href="#ui-shapes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/></svg>
+      UI Shapes
+    </a>
+  </nav>
+
+  <!-- ── Settings content ─────────────────────────────────── -->
+  <div class="settings-sections">
+
+    <!-- College Profile -->
+    <section class="settings-section" id="college-profile">
+      <div class="settings-section-head">
+        <div class="settings-section-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div>
+          <h3>College Profile</h3>
+          <p>Your institution's identity and workspace metadata.</p>
+        </div>
+      </div>
+      <div class="settings-section-body">
+        <div class="detail-list" style="margin-top:0;">
+          <div><span>College Name</span><strong>{{ tenant.name }}</strong></div>
+          <div><span>Subdomain</span><strong>{{ tenant.subdomain }}</strong></div>
+          <div><span>Created At</span><strong>{{ tenant.created_at }}</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sidebar & Topbar Customisation -->
+    <section class="settings-section" id="sidebar-topbar">
+      <div class="settings-section-head">
+        <div class="settings-section-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div>
+          <h3>Sidebar &amp; Topbar</h3>
+          <p>Choose colour themes for the navigation chrome.</p>
+        </div>
+      </div>
+      <div class="settings-section-body">
+
+        <!-- Sidebar colour -->
+        <div>
+          <p style="font-size:.82rem;font-weight:600;color:var(--text-2);margin:0 0 12px;">Sidebar colour</p>
+          <div class="theme-palette" id="sidebar-palette">
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="navy" checked>
+              <span class="theme-swatch-color swatch-navy"></span>
+              <span class="theme-swatch-label">Navy</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="dark">
+              <span class="theme-swatch-color swatch-dark"></span>
+              <span class="theme-swatch-label">Dark</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="slate">
+              <span class="theme-swatch-color swatch-slate"></span>
+              <span class="theme-swatch-label">Slate</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="forest">
+              <span class="theme-swatch-color swatch-forest"></span>
+              <span class="theme-swatch-label">Forest</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="midnight">
+              <span class="theme-swatch-color swatch-midnight"></span>
+              <span class="theme-swatch-label">Midnight</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="sidebar_theme" value="charcoal">
+              <span class="theme-swatch-color swatch-charcoal"></span>
+              <span class="theme-swatch-label">Charcoal</span>
+            </label>
+
+          </div>
+        </div>
+
+        
+        <!-- Topbar colour -->
+        <div>
+          <p style="font-size:.82rem;font-weight:600;color:var(--text-2);margin:0 0 12px;">Topbar colour</p>
+          <div class="theme-palette" id="topbar-palette">
+
+            <label class="theme-swatch">
+              <input type="radio" name="topbar_theme" value="white" checked>
+              <span class="theme-swatch-color swatch-topbar-white"></span>
+              <span class="theme-swatch-label">White</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="topbar_theme" value="navy">
+              <span class="theme-swatch-color swatch-topbar-navy"></span>
+              <span class="theme-swatch-label">Navy</span>
+            </label>
+ 
+            <label class="theme-swatch">
+              <input type="radio" name="topbar_theme" value="light">
+              <span class="theme-swatch-color swatch-topbar-light"></span>
+              <span class="theme-swatch-label">Light</span>
+            </label>
+
+            <label class="theme-swatch">
+              <input type="radio" name="topbar_theme" value="transparent">
+              <span class="theme-swatch-color swatch-topbar-transparent"></span>
+              <span class="theme-swatch-label">Subtle</span>
+            </label>
+
+          </div>
+        </div>
+
+        <div class="settings-save-row">
+          <button class="btn btn-primary btn-sm" id="save-chrome-btn" type="button">Save changes</button>
+          <button class="settings-reset-btn" id="reset-chrome-btn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.7L1 10"/></svg>
+            Reset defaults
+          </button>
+          <span class="settings-save-msg" id="chrome-saved-msg">Saved!</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="settings-section" id="typography">
+      <div class="settings-section-head">
+        <div class="settings-section-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        </div>
+        <div>
+          <h3>Typography</h3>
+          <p>Choose a font family that suits your workspace.</p>
+        </div>
+      </div>
+      <div class="settings-section-body">
+        <div class="font-options" id="font-options">
+
+          <div class="font-option selected" data-font="inter" tabindex="0" role="button" aria-pressed="true">
+            <input type="radio" name="ui_font" value="inter" checked>
+            <span class="font-option-preview font-option-preview-inter">Aa</span>
+            <span class="font-option-name">Inter</span>
+          </div>
+
+          <div class="font-option" data-font="poppins" tabindex="0" role="button" aria-pressed="false">
+            <input type="radio" name="ui_font" value="poppins">
+            <span class="font-option-preview font-option-preview-poppins">Aa</span>
+            <span class="font-option-name">Poppins</span>
+          </div>
+
+          <div class="font-option" data-font="dmsans" tabindex="0" role="button" aria-pressed="false">
+            <input type="radio" name="ui_font" value="dmsans">
+            <span class="font-option-preview font-option-preview-dmsans">Aa</span>
+            <span class="font-option-name">DM Sans</span>
+          </div>
+
+          <div class="font-option" data-font="nunito" tabindex="0" role="button" aria-pressed="false">
+            <input type="radio" name="ui_font" value="nunito">
+            <span class="font-option-preview font-option-preview-nunito">Aa</span>
+            <span class="font-option-name">Nunito</span>
+          </div>
+
+        </div>
+
+        <!-- Live preview -->
+        <div class="settings-preview-bar" id="font-preview-bar">
+          <span>Preview:</span>
+          <span id="font-preview-text" style="font-size:1rem;font-weight:600;color:var(--text);">
+            The quick brown fox jumps over the lazy dog.
+          </span>
+        </div>
+
+        <div class="settings-save-row">
+          <button class="btn btn-primary btn-sm" id="save-font-btn" type="button">Apply font</button>
+          <button class="settings-reset-btn" id="reset-font-btn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.7L1 10"/></svg>
+            Reset to Inter
+          </button>
+          <span class="settings-save-msg" id="font-saved-msg">Applied!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- UI Shapes -->
+    <section class="settings-section" id="ui-shapes">
+      <div class="settings-section-head">
+        <div class="settings-section-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/></svg>
+        </div>
+        <div>
+          <h3>UI Shapes</h3>
+          <p>Control corner radius across cards, buttons, tables, and forms.</p>
+        </div>
+      </div>
+      <div class="settings-section-body">
+        <div class="radius-options" id="radius-options">
+
+          <div class="radius-option" data-radius="sharp" tabindex="0" role="button" aria-pressed="false">
+            <input type="radio" name="ui_radius" value="sharp">
+            <div class="radius-option-shape radius-option-shape--sharp"></div>
+            <span class="radius-option-label">Sharp</span>
+          </div>
+
+          <div class="radius-option selected" data-radius="medium" tabindex="0" role="button" aria-pressed="true">
+            <input type="radio" name="ui_radius" value="medium" checked>
+            <div class="radius-option-shape radius-option-shape--medium"></div>
+            <span class="radius-option-label">Rounded</span>
+          </div>
+
+          <div class="radius-option" data-radius="rounded" tabindex="0" role="button" aria-pressed="false">
+            <input type="radio" name="ui_radius" value="rounded">
+            <div class="radius-option-shape radius-option-shape--rounded"></div>
+            <span class="radius-option-label">Pill</span>
+          </div>
+
+        </div>
+
+        <!-- Preview area -->
+        <div class="settings-preview-bar" style="gap:16px;flex-wrap:wrap;">
+          <span>Preview:</span>
+          <button class="btn btn-primary btn-sm" id="radius-preview-btn" type="button">Button</button>
+          <div style="width:120px;height:36px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-sm);"></div>
+          <span class="badge brand" style="border-radius:var(--r-xs);">Badge</span>
+        </div>
+
+        <div class="settings-save-row">
+          <button class="btn btn-primary btn-sm" id="save-radius-btn" type="button">Apply shape</button>
+          <button class="settings-reset-btn" id="reset-radius-btn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.7L1 10"/></svg>
+            Reset to Rounded
+          </button>
+          <span class="settings-save-msg" id="radius-saved-msg">Applied!</span>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.settings-sections -->
+</div><!-- /.settings-layout -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ── UI Customisation Settings
+   Minimal, isolated JS. Only runs on the settings page.
+   Uses localStorage + data-attributes on <html>.
+   Does not interfere with Django routing or server logic.
+   ────────────────────────────────────────────────────────── */
+(function () {
+  var html = document.documentElement;
+
+  /* ── Helpers ─────────────────────────────────────────── */
+  function save(key, val) {
+    try { localStorage.setItem(key, val); } catch(e) {}
+  }
+
+  function load(key, def) {
+    try { return localStorage.getItem(key) || def; } catch(e) { return def; }
+  }
+
+  function flashMsg(el) {
+    el.classList.add('show');
+    setTimeout(function(){ el.classList.remove('show'); }, 2000);
+  }
+
+  /* ── Restore current selections on page load ─────────── */
+  function restoreAll() {
+    var sidebar = load('sms_sidebar_theme', 'navy');
+    var topbar  = load('sms_topbar_theme',  'white');
+    var font    = load('sms_font',          'inter');
+    var radius  = load('sms_radius',        'medium');
+
+    // Sidebar radio
+    var sidebarRadio = document.querySelector('input[name="sidebar_theme"][value="' + sidebar + '"]');
+    if (sidebarRadio) sidebarRadio.checked = true;
+
+    // Topbar radio
+    var topbarRadio = document.querySelector('input[name="topbar_theme"][value="' + topbar + '"]');
+    if (topbarRadio) topbarRadio.checked = true;
+
+    // Font options
+    document.querySelectorAll('.font-option').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.font === font);
+      opt.querySelector('input').checked = opt.dataset.font === font;
+    });
+    updateFontPreview(font);
+
+    // Radius options
+    document.querySelectorAll('.radius-option').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.radius === radius);
+      opt.querySelector('input').checked = opt.dataset.radius === radius;
+    });
+  }
+
+  /* ── Font preview ────────────────────────────────────── */
+  var fontFamilies = {
+    inter:   "'Inter', system-ui, sans-serif",
+    poppins: "'Poppins', sans-serif",
+    dmsans:  "'DM Sans', sans-serif",
+    nunito:  "'Nunito', sans-serif"
+  };
+
+  function updateFontPreview(fontKey) {
+    var preview = document.getElementById('font-preview-text');
+    if (preview) {
+      preview.style.fontFamily = fontFamilies[fontKey] || fontFamilies.inter;
+    }
+  }
+
+  /* ── Font option clicks ──────────────────────────────── */
+  document.querySelectorAll('.font-option').forEach(function(opt) {
+    function selectFont() {
+      document.querySelectorAll('.font-option').forEach(function(o) {
+        o.classList.remove('selected');
+        o.setAttribute('aria-pressed', 'false');
+        o.querySelector('input').checked = false;
+      });
+      opt.classList.add('selected');
+      opt.setAttribute('aria-pressed', 'true');
+      opt.querySelector('input').checked = true;
+      updateFontPreview(opt.dataset.font);
+    }
+    opt.addEventListener('click', selectFont);
+    opt.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectFont(); }
+    });
+  });
+
+  /* ── Radius option clicks ────────────────────────────── */
+  document.querySelectorAll('.radius-option').forEach(function(opt) {
+    function selectRadius() {
+      document.querySelectorAll('.radius-option').forEach(function(o) {
+        o.classList.remove('selected');
+        o.setAttribute('aria-pressed', 'false');
+        o.querySelector('input').checked = false;
+      });
+      opt.classList.add('selected');
+      opt.setAttribute('aria-pressed', 'true');
+      opt.querySelector('input').checked = true;
+      // Live preview: apply to html immediately so preview bar updates
+      html.setAttribute('data-radius', opt.dataset.radius);
+    }
+    opt.addEventListener('click', selectRadius);
+    opt.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectRadius(); }
+    });
+  });
+
+  /* ── Save: sidebar & topbar ──────────────────────────── */
+  var saveChromeBtn  = document.getElementById('save-chrome-btn');
+  var resetChromeBtn = document.getElementById('reset-chrome-btn');
+  var chromeSavedMsg = document.getElementById('chrome-saved-msg');
+
+  if (saveChromeBtn) {
+    saveChromeBtn.addEventListener('click', function () {
+      var sidebarVal = (document.querySelector('input[name="sidebar_theme"]:checked') || {}).value || 'navy';
+      var topbarVal  = (document.querySelector('input[name="topbar_theme"]:checked')  || {}).value || 'white';
+      html.setAttribute('data-sidebar-theme', sidebarVal);
+      html.setAttribute('data-topbar-theme',  topbarVal);
+      save('sms_sidebar_theme', sidebarVal);
+      save('sms_topbar_theme',  topbarVal);
+      flashMsg(chromeSavedMsg);
+    });
+  }
+
+  if (resetChromeBtn) {
+    resetChromeBtn.addEventListener('click', function () {
+      var sidebarRadio = document.querySelector('input[name="sidebar_theme"][value="navy"]');
+      var topbarRadio  = document.querySelector('input[name="topbar_theme"][value="white"]');
+      if (sidebarRadio) sidebarRadio.checked = true;
+      if (topbarRadio)  topbarRadio.checked  = true;
+      html.setAttribute('data-sidebar-theme', 'navy');
+      html.setAttribute('data-topbar-theme',  'white');
+      save('sms_sidebar_theme', 'navy');
+      save('sms_topbar_theme',  'white');
+      flashMsg(chromeSavedMsg);
+    });
+  }
+
+  /* ── Save: font ──────────────────────────────────────── */
+  var saveFontBtn  = document.getElementById('save-font-btn');
+  var resetFontBtn = document.getElementById('reset-font-btn');
+  var fontSavedMsg = document.getElementById('font-saved-msg');
+
+  if (saveFontBtn) {
+    saveFontBtn.addEventListener('click', function () {
+      var selected = document.querySelector('.font-option.selected');
+      var fontVal  = selected ? selected.dataset.font : 'inter';
+      html.setAttribute('data-font', fontVal);
+      save('sms_font', fontVal);
+      flashMsg(fontSavedMsg);
+    });
+  }
+
+  if (resetFontBtn) {
+    resetFontBtn.addEventListener('click', function () {
+      document.querySelectorAll('.font-option').forEach(function(o) {
+        o.classList.toggle('selected', o.dataset.font === 'inter');
+        o.querySelector('input').checked = o.dataset.font === 'inter';
+      });
+      updateFontPreview('inter');
+      html.setAttribute('data-font', 'inter');
+      save('sms_font', 'inter');
+      flashMsg(fontSavedMsg);
+    });
+  }
+
+  /* ── Save: radius ────────────────────────────────────── */
+  var saveRadiusBtn  = document.getElementById('save-radius-btn');
+  var resetRadiusBtn = document.getElementById('reset-radius-btn');
+  var radiusSavedMsg = document.getElementById('radius-saved-msg');
+
+  if (saveRadiusBtn) {
+    saveRadiusBtn.addEventListener('click', function () {
+      var selected = document.querySelector('.radius-option.selected');
+      var radiusVal = selected ? selected.dataset.radius : 'medium';
+      html.setAttribute('data-radius', radiusVal);
+      save('sms_radius', radiusVal);
+      flashMsg(radiusSavedMsg);
+    });
+  }
+
+  if (resetRadiusBtn) {
+    resetRadiusBtn.addEventListener('click', function () {
+      document.querySelectorAll('.radius-option').forEach(function(o) {
+        o.classList.toggle('selected', o.dataset.radius === 'medium');
+        o.querySelector('input').checked = o.dataset.radius === 'medium';
+      });
+      html.setAttribute('data-radius', 'medium');
+      save('sms_radius', 'medium');
+      flashMsg(radiusSavedMsg);
+    });
+  }
+
+  /* ── Smooth-scroll settings nav ─────────────────────── */
+  document.querySelectorAll('.settings-nav-link').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      var href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        var target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        document.querySelectorAll('.settings-nav-link').forEach(function(l) {
+          l.classList.remove('active');
+        });
+        link.classList.add('active');
+      }
+    });
+  });
+
+  /* ── Init ────────────────────────────────────────────── */
+  restoreAll();
+
+})();
+</script>
+{% endblock %}

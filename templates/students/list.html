@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Students | SMS{% endblock %}
+{% block page_title %}Students{% endblock %}
+{% block page_subtitle %}All learners mapped to the current tenant.{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>Student Directory</h2>
+    <a class="btn btn-primary" href="#">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Student
+    </a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th><th>Enrollment No.</th><th>Enrolled On</th><th>Notifications</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ student.display_name|first }}</div>
+                <div>
+                  <div class="cell-name">{{ student.display_name }}</div>
+                  <div class="cell-sub">{{ student.user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ student.admission_no }}</td>
+            <td>{{ student.enrollment_date }}</td>
+            <td>
+              <span class="badge {% if student.email_notifications %}success{% else %}muted{% endif %}">Email</span>
+              <span class="badge {% if student.sms_notifications %}success{% else %}muted{% endif %}">SMS</span>
+              <span class="badge {% if student.push_notifications %}success{% else %}muted{% endif %}">Push</span>
+            </td>
+            <td style="text-align:right;">
+              <a class="btn btn-outline btn-sm" href="{% url 'web:student-detail' student_id=student.user_id %}">View</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="empty-state">No students available.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

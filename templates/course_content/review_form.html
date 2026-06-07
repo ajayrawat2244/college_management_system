@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Add Review | SMS{% endblock %}
+{% block page_title %}Add Review{% endblock %}
+{% block page_subtitle %}Write feedback for the selected content item.{% endblock %}
+{% block content %}
+<section class="card narrow-card">
+  <h2 style="font-size:1.1rem;font-weight:800;color:var(--text);letter-spacing:-.03em;margin:0 0 22px;">{{ content.title }}</h2>
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    <label class="field">
+      <span>Rating (1–5)</span>
+      <input type="number" name="rating" min="1" max="5" value="5" required>
+    </label>
+    <label class="field">
+      <span>Your Review</span>
+      <textarea name="review" rows="5" placeholder="Write your review here…"></textarea>
+    </label>
+    <button class="btn btn-primary" type="submit">Save Review</button>
+  </form>
+</section>
+{% endblock %}

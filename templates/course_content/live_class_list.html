@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Live Classes | SMS{% endblock %}
+{% block page_title %}Live Classes{% endblock %}
+{% block page_subtitle %}Scheduled sessions for a course.{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>{{ course.name }}</h2>
+  </div>
+  <div class="cards-grid">
+    {% for live_class in live_classes %}
+      <article class="info-card">
+        <h3>{{ live_class.title }}</h3>
+        <p>{{ live_class.platform }} &bull; {{ live_class.starts_at }}</p>
+        <div class="meta-row">
+          <span class="badge {% if live_class.status == 'SCHEDULED' %}success{% elif live_class.status == 'COMPLETED' %}muted{% else %}warning{% endif %}">
+            {{ live_class.get_status_display }}
+          </span>
+        </div>
+      </article>
+    {% empty %}
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        No live classes scheduled.
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

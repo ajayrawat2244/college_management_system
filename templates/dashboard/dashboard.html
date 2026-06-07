@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | SMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Tenant snapshot, admissions, revenue, and operational status.{% endblock %}
+{% block content %}
+
+{# ── 4 KPI stat cards (Figma exact palette) ─────────────── #}
+<section class="stats-grid">
+
+  {# Card 1: Total Admissions — indigo gradient #}
+  <article class="stat-card stat-card--indigo">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
+      <div>
+        <span>Total<br>Admissions</span>
+        <strong>{{ total_admissions|default:'1284' }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-subnote">+12% from last month</div>
+  </article>
+
+  {# Card 2: Total Enquiries — dark teal gradient #}
+  <article class="stat-card stat-card--teal">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
+      <div>
+        <span>Total<br>Enquiries</span>
+        <strong>{{ total_enquiries|default:'4,592' }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-subnote">{{ pending_enquiries|default:'240' }} pending today</div>
+  </article>
+
+  {# Card 3: Total Revenue — near-black dark gradient #}
+  <article class="stat-card stat-card--dark">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
+      <div>
+        <span>Total<br>Revenue</span>
+        <strong>&#8377;{{ total_revenue|default:'248.5K' }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-subnote">Target: &#8377;{{ revenue_target|default:'300K' }}</div>
+  </article>
+
+  {# Card 4: Active Courses — light lavender (dark text) #}
+  <article class="stat-card stat-card--lavender">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
+      <div>
+        <span>Active<br>Courses</span>
+        <strong>{{ active_courses|default:'84' }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-subnote">{{ launching_soon|default:'12' }} launching soon</div>
+  </article>
+
+</section>
+
+{# ── Dashboard main grid: 60% table + 40% dark ops panel ── #}
+<div class="dash-grid">
+
+  {# Left: Recent Students table #}
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Recent Students</h2>
+        <p class="card-head-sub">Real-time enrollment stream</p>
+      </div>
+      <a class="btn btn-outline btn-sm" href="students">View all &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Course</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in recent_students %}
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="cell-avatar">{{ student.display_name|first|default:student.user.first_name|first }}</div>
+                  <div>
+                    <div class="cell-name">{{ student.display_name }}</div>
+                    <div class="cell-sub">ID: #{{ student.enrollment_no }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{% if student.latest_enrollment and student.latest_enrollment.section and student.latest_enrollment.section.batch and student.latest_enrollment.section.batch.program %}
+                  {{ student.latest_enrollment.section.batch.program.name }}
+                {% else %}
+                  —
+                {% endif %}</td>
+              <td style="white-space:nowrap;color:var(--muted);font-size:.8rem">
+                {{ student.created_at|date:"M d, Y"|default:'—' }}
+              </td>
+              <td>
+                {% if student.status == 'verified' %}
+                  <span class="badge verified">Verified</span>
+                {% elif student.status == 'suspended' %}
+                  <span class="badge suspended">Suspended</span>
+                {% else %}
+                  <span class="badge pending">Pending</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            {# Figma-style demo rows when no data #}
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="cell-avatar">L</div>
+                  <div>
+                    <div class="cell-name">Liam Henderson</div>
+                    <div class="cell-sub">ID: #ST-9921</div>
+                  </div>
+                </div>
+              </td>
+              <td>B.Sc Computer Science</td>
+              <td style="white-space:nowrap;color:var(--muted);font-size:.8rem">Oct 12, 2023</td>
+              <td><span class="badge verified">Verified</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="cell-avatar" style="background:linear-gradient(135deg,#ec4899,#be185d)">S</div>
+                  <div>
+                    <div class="cell-name">Sophia Chen</div>
+                    <div class="cell-sub">ID: #ST-9844</div>
+                  </div>
+                </div>
+              </td>
+              <td>Masters in Data Analytics</td>
+              <td style="white-space:nowrap;color:var(--muted);font-size:.8rem">Oct 11, 2023</td>
+              <td><span class="badge pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="cell-avatar" style="background:linear-gradient(135deg,#0e8b7a,#07604f)">M</div>
+                  <div>
+                    <div class="cell-name">Marcus Thorne</div>
+                    <div class="cell-sub">ID: #ST-9810</div>
+                  </div>
+                </div>
+              </td>
+              <td>B.A. Digital Arts</td>
+              <td style="white-space:nowrap;color:var(--muted);font-size:.8rem">Oct 10, 2023</td>
+              <td><span class="badge verified">Verified</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="cell-user">
+                  <div class="cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#ea580c)">E</div>
+                  <div>
+                    <div class="cell-name">Elena Rodriguez</div>
+                    <div class="cell-sub">ID: #ST-9776</div>
+                  </div>
+                </div>
+              </td>
+              <td>B.Sc Biology</td>
+              <td style="white-space:nowrap;color:var(--muted);font-size:.8rem">Oct 09, 2023</td>
+              <td><span class="badge suspended">Suspended</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# Right: dark Operations panel (Figma exact) #}
+  <aside class="dark-panel">
+    <p class="dark-panel-title">Operations</p>
+    <p class="dark-panel-subtitle">Institutional management tasks</p>
+
+    <div class="op-list">
+
+      {# Pending Fees item #}
+      <div class="op-item">
+        <div class="op-item-top">
+          <div class="op-item-icon">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div class="op-item-body">
+            <p class="op-item-label">Pending Fees</p>
+            <p class="op-item-desc">{{ pending_fee_students|default:'42' }} Students overdue for Semester 2</p>
+          </div>
+          <span class="op-item-value danger">&#8377;{{ pending_fees_amount|default:'12,400' }}</span>
+        </div>
+        <div class="op-progress-track">
+          <div class="op-progress-fill" style="width:{{ fees_collected_pct|default:'42' }}%"></div>
+        </div>
+      </div>
+
+      {# Upcoming Classes item #}
+      <div class="op-item">
+        <div class="op-item-top">
+          <div class="op-item-icon teal">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="op-item-body">
+            <p class="op-item-label">Upcoming Classes</p>
+            <p class="op-item-desc">Next: {{ next_class|default:'Advanced Calculus at 2:00 PM' }}</p>
+          </div>
+          <div style="text-align:right">
+            <span class="op-item-value">{{ upcoming_live_classes|default:'12' }}</span>
+            <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-top:1px">Today</div>
+          </div>
+        </div>
+        <div class="avatar-stack">
+          <div class="av">A</div>
+          <div class="av" style="background:linear-gradient(135deg,#0e8b7a,#07604f)">B</div>
+          <div class="av" style="background:linear-gradient(135deg,#ec4899,#be185d)">C</div>
+          <div class="av" style="background:linear-gradient(135deg,#f59e0b,#ea580c)">D</div>
+          <div class="av av-more">+8</div>
+        </div>
+      </div>
+
+      {# Published Content item #}
+      <div class="op-item">
+        <div class="op-item-top">
+          <div class="op-item-icon cloud">
+            <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          </div>
+          <div class="op-item-body">
+            <p class="op-item-label">Published Content</p>
+            <p class="op-item-desc">Study materials, videos, and PDFs</p>
+          </div>
+          <span class="op-item-value">{{ published_contents|default:'1,204' }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <a href="#" class="dark-panel-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      + Create New Task
+    </a>
+  </aside>
+
+</div>
+
+{# Floating Action Button #}
+<a href="#" class="fab" title="Quick action" aria-label="Create new task">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+</a>
+
+{% endblock %}

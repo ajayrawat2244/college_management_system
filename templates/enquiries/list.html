@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Enquiries | SMS{% endblock %}
+{% block page_title %}Enquiries{% endblock %}
+{% block page_subtitle %}Leads from interested students or parents.{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>Enquiry List</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Interested Course</th><th>Created</th></tr>
+      </thead>
+      <tbody>
+        {% for enquiry in enquiries %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ enquiry.name|first }}</div>
+                <div class="cell-name">{{ enquiry.name }}</div>
+              </div>
+            </td>
+            <td>{{ enquiry.email }}</td>
+            <td>{{ enquiry.phone }}</td>
+            <td>
+              {% if enquiry.interested_course.name %}
+                <span class="badge brand">{{ enquiry.interested_course.name }}</span>
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
+            <td>{{ enquiry.created_at }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty-state">No enquiries yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

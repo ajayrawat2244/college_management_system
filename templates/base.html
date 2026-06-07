@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Student Management System{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Poppins:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+  <!-- Theme persistence: applies saved theme before first paint to prevent flash -->
+  <script>
+    (function() {
+      try {
+        var s = localStorage.getItem('sms_sidebar_theme') || 'navy';
+        var t = localStorage.getItem('sms_topbar_theme') || 'white';
+        var r = localStorage.getItem('sms_radius')       || 'medium';
+        var f = localStorage.getItem('sms_font')         || 'inter';
+        var html = document.documentElement;
+        html.setAttribute('data-sidebar-theme', s);
+        html.setAttribute('data-topbar-theme',  t);
+        html.setAttribute('data-radius',         r);
+        html.setAttribute('data-font',           f);
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <div class="app-shell">
+    {% include 'partials/sidebar.html' %}
+    <div class="app-main">
+      {% include 'partials/topbar.html' %}
+      <main class="content-wrap">
+        {% include 'partials/messages.html' %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <div class="sidebar-overlay" onclick="document.getElementById('nav-toggle').checked=false;"></div>
+  </div>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

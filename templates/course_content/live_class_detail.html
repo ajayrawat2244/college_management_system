@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Live Class | SMS{% endblock %}
+{% block page_title %}Live Class Detail{% endblock %}
+{% block page_subtitle %}Join link, schedule, and class metadata.{% endblock %}
+{% block content %}
+<section class="card narrow-card">
+  <h2 style="font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.03em;margin:0 0 4px;">{{ live_class.title }}</h2>
+  <div class="detail-list">
+    <div><span>Course</span><strong>{{ live_class.course.name }}</strong></div>
+    <div><span>Platform</span><strong>{{ live_class.platform }}</strong></div>
+    <div><span>Starts At</span><strong>{{ live_class.starts_at }}</strong></div>
+    <div>
+      <span>Status</span>
+      <strong>{{ live_class.get_status_display }}</strong>
+    </div>
+  </div>
+  <div style="margin-top:24px;">
+    <a class="btn btn-primary" href="{{ live_class.meeting_url }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      Join Live Class
+    </a>
+  </div>
+</section>
+{% endblock %}

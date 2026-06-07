@@ -1,0 +1,483 @@
+{% extends 'base.html' %}
+{% block title %}Student Profile | SMS{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+{% block page_subtitle %}Profile, attendance, finance, assignments, and exam data.{% endblock %}
+{% block extra_css %}
+<style>
+/* ═══════════════════════════════════════════════════════════
+   STUDENT PROFILE — self-contained styles (cache-proof)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Breadcrumb */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#5d6e90;margin-bottom:18px;flex-wrap:wrap}
+.breadcrumb a{color:#5d6e90;text-decoration:none}.breadcrumb a:hover{color:#6063ee}
+.bc-sep{color:#8fa0bc}.bc-current{color:#060c1f;font-weight:600}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.profile-hero{
+  background:#1a1b2f;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;
+  padding:28px;
+  display:flex;
+  align-items:center;
+  gap:22px;
+  margin-bottom:18px;
+  position:relative;
+  overflow:hidden;
+}
+.profile-hero::before{
+  content:'';position:absolute;top:-60px;left:40%;
+  width:320px;height:180px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(96,99,238,.2) 0%,transparent 70%);
+  pointer-events:none;
+}
+.profile-hero-photo{flex-shrink:0}
+.profile-photo-wrap{position:relative;width:82px;height:82px}
+.profile-avatar-lg{
+  width:82px;height:82px;border-radius:14px;
+  background:linear-gradient(135deg,#6063ee 0%,#4648d4 100%);
+  border:3px solid rgba(255,255,255,.15);
+  display:grid;place-items:center;
+  font-size:2rem;font-weight:800;color:#fff;letter-spacing:-.04em;
+  font-family:inherit;
+}
+.profile-online-dot{
+  position:absolute;bottom:5px;right:5px;
+  width:12px;height:12px;border-radius:50%;
+  background:#22c55e;border:2.5px solid #1a1b2f;
+}
+.profile-hero-info{flex:1;min-width:0}
+.profile-hero-name{font-size:1.75rem;font-weight:800;color:#fff;letter-spacing:-.04em;margin:0 0 3px;line-height:1.1}
+.profile-hero-course{font-size:.82rem;color:rgba(255,255,255,.48);margin:0 0 16px;font-weight:400}
+.profile-hero-stats{display:flex;gap:9px;flex-wrap:wrap}
+.profile-hero-stat{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:8px;padding:8px 13px;
+  display:flex;flex-direction:column;gap:3px;
+}
+.profile-hero-stat span{font-size:.63rem;color:rgba(255,255,255,.42);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.profile-hero-stat strong{font-size:.82rem;color:#fff;font-weight:700}
+.profile-hero-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:stretch}
+.btn-hero-primary{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 16px;border-radius:9px;font-size:.8rem;font-weight:600;
+  font-family:inherit;cursor:pointer;white-space:nowrap;
+  background:#6063ee;border:1px solid #6063ee;color:#fff;
+  transition:background .15s;
+}
+.btn-hero-primary:hover{background:#4c4fd8}
+.btn-hero-ghost{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 16px;border-radius:9px;font-size:.8rem;font-weight:600;
+  font-family:inherit;cursor:pointer;white-space:nowrap;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.8);
+  transition:background .15s;
+}
+.btn-hero-ghost:hover{background:rgba(255,255,255,.14);color:#fff}
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+.profile-tabs{
+  display:flex;border-bottom:2px solid #e3e8f2;
+  margin-bottom:18px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.profile-tabs::-webkit-scrollbar{display:none}
+.profile-tab{
+  background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  padding:10px 20px;font-family:inherit;font-size:.85rem;font-weight:500;
+  color:#5d6e90;cursor:pointer;white-space:nowrap;
+  transition:color .15s;
+}
+.profile-tab:hover{color:#060c1f}
+.profile-tab.active{color:#6063ee;font-weight:700;border-bottom-color:#6063ee}
+
+/* ── Profile 2-col grid ───────────────────────────────────── */
+.profile-grid{display:grid;grid-template-columns:1fr 320px;gap:18px;align-items:start}
+.profile-col-left{display:grid;gap:14px}
+.profile-col-right{display:grid;gap:12px}
+
+/* ── Section cards ────────────────────────────────────────── */
+.pcard{
+  background:#fff;border:1px solid #e3e8f2;
+  border-radius:13px;padding:22px 22px 20px;
+  box-shadow:0 1px 3px rgba(6,12,31,.05),0 4px 14px rgba(6,12,31,.04);
+}
+
+/* Section header: icon + title */
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sec-icon{
+  width:32px;height:32px;border-radius:8px;flex-shrink:0;
+  display:grid;place-items:center;
+  background:#eef0ff;border:1px solid #dde0ff;
+}
+.sec-icon svg{width:15px;height:15px;stroke:#6063ee;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sec-icon--red{background:#fff0f0;border-color:#fecaca}
+.sec-icon--red svg{stroke:#dc2626}
+.sec-title{font-size:.95rem;font-weight:700;color:#060c1f;margin:0;letter-spacing:-.025em}
+
+/* Field grid */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field--full{grid-column:1/-1;margin-top:2px}
+.flabel{font-size:.7rem;color:#5d6e90;font-weight:500}
+.fvalue{font-size:.875rem;font-weight:600;color:#060c1f;letter-spacing:-.01em}
+.fvalue--link{font-size:.875rem;font-weight:600;color:#6063ee;text-decoration:none}
+.fvalue--link:hover{text-decoration:underline}
+
+/* Emergency contact */
+.ec-person{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ec-avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:#fff0f0;border:1.5px solid #fecaca;
+  display:grid;place-items:center;
+}
+.ec-avatar svg{width:18px;height:18px;stroke:#dc2626;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ec-rel{font-size:.7rem;color:#5d6e90;font-weight:500;margin:0 0 2px}
+.ec-name{font-size:.92rem;font-weight:700;color:#060c1f;letter-spacing:-.02em}
+.ec-phone{
+  display:flex;align-items:center;gap:8px;
+  font-size:.82rem;color:#5d6e90;font-weight:500;
+  background:#f8fafc;border:1px solid #e3e8f2;border-radius:8px;padding:9px 12px;
+}
+.ec-phone svg{flex-shrink:0;width:13px;height:13px;stroke:#5d6e90;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Campus identity rows */
+.ci-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e3e8f2}
+.ci-row:last-child{border-bottom:none;padding-bottom:0}
+.ci-label{font-size:.78rem;color:#5d6e90;font-weight:500}
+.ci-value{font-size:.82rem;font-weight:700;color:#060c1f;text-align:right;letter-spacing:-.01em}
+
+/* Mini stat cards */
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.mini-stat{
+  border-radius:13px;padding:17px 15px;
+  display:flex;flex-direction:column;gap:2px;
+  position:relative;overflow:hidden;
+  box-shadow:0 6px 18px -4px rgba(0,0,0,.16);
+}
+.mini-stat::after{
+  content:'';position:absolute;top:-14px;right:-14px;
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(255,255,255,.12);filter:blur(12px);
+  pointer-events:none;
+}
+.mini-stat--indigo{background:linear-gradient(147.65deg,#6063ee 0%,#4648d4 100%)}
+.mini-stat--teal{background:linear-gradient(147.65deg,#0e8b7a 0%,#07604f 100%)}
+.mini-stat-val{font-size:1.6rem;font-weight:800;color:#fff;letter-spacing:-.05em;line-height:1}
+.mini-stat-lbl{font-size:.68rem;color:rgba(255,255,255,.55);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-top:5px}
+.mini-stat-sub{font-size:.62rem;color:rgba(255,255,255,.38);font-weight:400;text-transform:uppercase;letter-spacing:.04em}
+
+/* Responsive */
+@media(max-width:1040px){
+  .profile-grid{grid-template-columns:1fr}
+  .profile-col-right{grid-template-columns:1fr 1fr}
+  .mini-stats{grid-column:1/-1}
+}
+@media(max-width:680px){
+  .profile-hero{flex-wrap:wrap}
+  .profile-hero-actions{flex-direction:row;align-items:center}
+  .profile-col-right{grid-template-columns:1fr}
+  .fields{grid-template-columns:1fr}
+  .profile-hero-name{font-size:1.3rem}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ── Breadcrumb ──────────────────────────────────────────── #}
+<nav class="breadcrumb">
+  <a href="/">Dashboard</a>
+  <span class="bc-sep">›</span>
+  <a href="/students/">Students</a>
+  <span class="bc-sep">›</span>
+  <span class="bc-current">Profile: #{{ student.admission_no|default:'6TU-88291' }}</span>
+</nav>
+
+{# ── Hero dark card ──────────────────────────────────────── #}
+<div class="profile-hero">
+
+  <div class="profile-hero-photo">
+    <div class="profile-photo-wrap">
+      <div class="profile-avatar-lg">{{ student.display_name|first|upper|default:'A' }}</div>
+      <span class="profile-online-dot"></span>
+    </div>
+  </div>
+
+  <div class="profile-hero-info">
+    <h2 class="profile-hero-name">{{ student.display_name|default:'Adrian Wentworth' }}</h2>
+    <p class="profile-hero-course">{{ student.course.name|default:'Bachelor of Computer Science &amp; Artificial Intelligence' }}</p>
+    <div class="profile-hero-stats">
+      <div class="profile-hero-stat">
+        <span>Enrollment ID</span>
+        <strong>#{{ student.enrollment_no|default:'STU-88291-2023' }}</strong>
+      </div>
+      <div class="profile-hero-stat">
+        <span>Current Semester</span>
+        <strong>{{ student.current_semester|default:'Semester 4 (Sophomore)' }}</strong>
+      </div>
+      <div class="profile-hero-stat">
+        <span>Current GPA</span>
+        <strong>{{ student.gpa|default:'3.88 / 4.0' }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-hero-actions">
+    <button class="btn-hero-primary">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Edit Profile
+    </button>
+    <button class="btn-hero-ghost">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Export Report
+    </button>
+  </div>
+
+</div>
+
+{# ── Tab navigation ──────────────────────────────────────── #}
+<div class="profile-tabs">
+  <button class="profile-tab active" data-tab="personal">Personal Info</button>
+  <button class="profile-tab" data-tab="academic">Academic History</button>
+  <button class="profile-tab" data-tab="fees">Fees Record</button>
+  <button class="profile-tab" data-tab="attendance">Attendance</button>
+</div>
+
+{# ══════════════════════════════════════════════════════════TAB PANELS══════════════════════════════════════════════════════════ #}
+
+{# Personal Info (default visible) #}
+<div class="tab-panel" id="tab-personal">
+  <div class="profile-grid">
+
+    {# ── Left column ──────────────────────────────────────── #}
+    <div class="profile-col-left">
+
+      {# General Information #}
+      <div class="pcard">
+        <div class="sec-head">
+          <div class="sec-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6063ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3 class="sec-title">General Information</h3>
+        </div>
+
+        <div class="fields">
+          <div class="field">
+            <span class="flabel">Full Legal Name</span>
+            <strong class="fvalue">{{ student.user.name|default:'Adrian Mark Wentworth' }}</strong>
+          </div>
+          <div class="field">
+            <span class="flabel">Date of Birth</span>
+            <strong class="fvalue">{{ student.date_of_birth|date:"d M, Y"|default:'14 May, 2003' }}{% if student.age %} ({{ student.age }} Years){% endif %}</strong>
+          </div>
+          <div class="field">
+            <span class="flabel">Nationality</span>
+            <strong class="fvalue">{{ student.nationality|default:'United Kingdom' }}</strong>
+          </div>
+          <div class="field">
+            <span class="flabel">Blood Group</span>
+            <strong class="fvalue">{{ student.blood_group|default:'O Positive (O+)' }}</strong>
+          </div>
+          <div class="field">
+            <span class="flabel">Primary Language</span>
+            <strong class="fvalue">{{ student.primary_language|default:'English (Native)' }}</strong>
+          </div>
+          <div class="field">
+            <span class="flabel">Gender</span>
+            <strong class="fvalue">{{ student.gender|default:'Male' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      {# Contact Details #}
+      <div class="pcard">
+        <div class="sec-head">
+          <div class="sec-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6063ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <h3 class="sec-title">Contact Details</h3>
+        </div>
+
+        <div class="fields">
+          <div class="field">
+            <span class="flabel">University Email</span>
+            <a class="fvalue--link" href="mailto:{{ student.user.email|default:'a.wentworth@alpine.edu' }}">
+              {{ student.user.email|default:'a.wentworth@alpine.edu' }}
+            </a>
+          </div>
+          <div class="field">
+            <span class="flabel">Personal Phone</span>
+            <strong class="fvalue">{{ student.phone|default:'+44 (0) 7700 900123' }}</strong>
+          </div>
+          <div class="field field--full">
+            <span class="flabel">Permanent Address</span>
+            <strong class="fvalue">{{ student.address|default:'24 Highfield Terrace, Kensington, London, SW7 2AZ, UK' }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>{# /col-left #}
+
+    {# ── Right column ─────────────────────────────────────── #}
+    <div class="profile-col-right">
+
+      {# Emergency Contact #}
+      <div class="pcard">
+        <div class="sec-head">
+          <div class="sec-icon sec-icon--red">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
+          <h3 class="sec-title">Emergency Contact</h3>
+        </div>
+
+        <div class="ec-person">
+          <div class="ec-avatar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <p class="ec-rel">{{ student.emergency_relation|default:'Guardian / Father' }}</p>
+            <strong class="ec-name">{{ student.emergency_contact_name|default:'Robert Wentworth' }}</strong>
+          </div>
+        </div>
+
+        <div class="ec-phone">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5d6e90" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          {{ student.emergency_phone|default:'+44 (0) 7700 900555' }}
+        </div>
+      </div>
+
+      {# Campus Identity #}
+      <div class="pcard">
+        <h3 class="sec-title" style="margin-bottom:14px">Campus Identity</h3>
+        <div class="ci-row">
+          <span class="ci-label">Hostel Block</span>
+          <strong class="ci-value">{{ student.hostel_block|default:'Block C - Raven Hall' }}</strong>
+        </div>
+        <div class="ci-row">
+          <span class="ci-label">Room Number</span>
+          <strong class="ci-value">{{ student.room_number|default:'302-B' }}</strong>
+        </div>
+        <div class="ci-row">
+          <span class="ci-label">Bus Route</span>
+          <strong class="ci-value">{{ student.bus_route|default:'North Loop (A1)' }}</strong>
+        </div>
+      </div>
+
+      {# Mini stat cards #}
+      <div class="mini-stats">
+        <div class="mini-stat mini-stat--indigo">
+          <strong class="mini-stat-val">{{ student.assignments_submitted|default:'12' }}/{{ student.assignments_total|default:'15' }}</strong>
+          <span class="mini-stat-lbl">Assignments</span>
+          <span class="mini-stat-sub">Submitted</span>
+        </div>
+        <div class="mini-stat mini-stat--teal">
+          <strong class="mini-stat-val">{{ student.credits_earned|default:'64' }}</strong>
+          <span class="mini-stat-lbl">Credits</span>
+          <span class="mini-stat-sub">Earned So Far</span>
+        </div>
+      </div>
+
+    </div>{# /col-right #}
+  </div>{# /profile-grid #}
+</div>{# /tab-personal #}
+
+{# Academic History #}
+<div class="tab-panel" id="tab-academic" style="display:none">
+  <div class="pcard">
+    <div class="sec-head">
+      <div class="sec-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6063ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <h3 class="sec-title">Academic History</h3>
+    </div>
+    <p style="color:#5d6e90;font-size:.875rem;padding:8px 0">Academic records will appear here.</p>
+  </div>
+</div>
+
+{# Fees Record #}
+<div class="tab-panel" id="tab-fees" style="display:none">
+  <div class="pcard">
+    <div class="sec-head">
+      <div class="sec-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6063ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <h3 class="sec-title">Fees Record</h3>
+    </div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div class="field">
+        <span class="flabel">Wallet Balance</span>
+        <strong class="fvalue">&#8377;{{ student.wallet.balance|default:'0' }}</strong>
+      </div>
+      <div class="field">
+        <span class="flabel">Fee Pending</span>
+        <strong class="fvalue" style="color:#dc2626">&#8377;{{ student.fee_record.pending_amount|default:'0' }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Attendance #}
+<div class="tab-panel" id="tab-attendance" style="display:none">
+  <div class="pcard">
+    <div class="sec-head">
+      <div class="sec-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6063ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <h3 class="sec-title">Attendance</h3>
+    </div>
+    <p style="color:#5d6e90;font-size:.875rem;padding:8px 0">Attendance records will appear here.</p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.profile-tab');
+  var map  = {personal:'tab-personal',academic:'tab-academic',fees:'tab-fees',attendance:'tab-attendance'};
+  tabs.forEach(function(tab){
+    tab.addEventListener('click',function(){
+      document.querySelectorAll('.profile-tab').forEach(function(t){t.classList.remove('active')});
+      document.querySelectorAll('.tab-panel').forEach(function(p){p.style.display='none'});
+      tab.classList.add('active');
+      var p=document.getElementById(map[tab.dataset.tab]);
+      if(p)p.style.display='';
+    });
+  });
+})();
+</script>
+{% endblock %}

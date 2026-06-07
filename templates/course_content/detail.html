@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Content Detail | SMS{% endblock %}
+{% block page_title %}Content Detail{% endblock %}
+{% block page_subtitle %}Media link, PDF notes, and student reviews.{% endblock %}
+{% block content %}
+<div class="grid-2">
+  <section class="card">
+    <h2 style="font-size:1.15rem;font-weight:800;color:var(--text);letter-spacing:-.03em;margin:0 0 8px;">{{ content.title }}</h2>
+    <p class="muted" style="font-size:.875rem;line-height:1.7;margin:0 0 4px;">{{ content.description }}</p>
+    <div class="detail-list">
+      <div><span>Type</span><strong>{{ content.content_type }}</strong></div>
+      <div><span>Order</span><strong>{{ content.order }}</strong></div>
+      <div>
+        <span>Status</span>
+        <strong>
+          <span class="badge {% if content.is_published %}success{% else %}muted{% endif %}">
+            {% if content.is_published %}Published{% else %}Hidden{% endif %}
+          </span>
+        </strong>
+      </div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>Student Reviews</h2></div>
+    <div class="stack-list">
+      {% for review in reviews %}
+        <div class="stack-item">
+          <div>
+            <div style="font-weight:600;font-size:.875rem;color:var(--text);">{{ review.student.user.name }}</div>
+            <div class="cell-sub">{{ review.review|default:'No comment' }}</div>
+          </div>
+          <span class="badge success">{{ review.rating }}/5</span>
+        </div>
+      {% empty %}
+        <div class="empty-state" style="padding:36px 0;">No reviews yet.</div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
