@@ -97,6 +97,11 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+
+                # --- Web layer context processors ---
+                "apps.web.context_processors.tenant",
+                "apps.web.context_processors.user_role",
+                "apps.web.context_processors.subscription",
             ],
         },
     },
@@ -150,8 +155,8 @@ CSRF_TRUSTED_ORIGINS = env(
     "CSRF_TRUSTED_ORIGINS", "http://localhost:3000"
 ).split(",")
 
-LOGIN_URL = "/api/auth/login/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
 
 # ---------------------------------------------------------------------------
 # Password Validation

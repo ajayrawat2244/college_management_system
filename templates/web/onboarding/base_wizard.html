@@ -1,0 +1,48 @@
+{% extends "web/base_auth.html" %}
+{% load static %}
+
+{% block title %}Register Your College · Step {{ current_step }} of {{ total_steps }}{% endblock %}
+
+{% block body %}
+<div class="auth-shell auth-shell--wide">
+
+  {# ── Left: branding + step progress ───────────────────── #}
+  <section class="auth-panel auth-branding">
+    <div class="brand-mark large">SMS</div>
+    <h1>Register your college</h1>
+    <p>Set up your institution's workspace in three simple steps.</p>
+
+    <div class="wizard-steps">
+      {% for n, label in steps.items %}
+        <div class="wizard-step {% if n == current_step %}wizard-step--active{% elif n < current_step %}wizard-step--done{% endif %}">
+          <div class="wizard-step-dot">
+            {% if n < current_step %}✓{% else %}{{ n }}{% endif %}
+          </div>
+          <span>{{ label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <p class="auth-footer-note" style="margin-top:3rem">
+      Already have an account?
+      <a href="{% url 'web:login' %}" style="color:inherit;text-decoration:underline">Sign in</a>
+    </p>
+  </section>
+
+  {# ── Right: form content ───────────────────────────────── #}
+  <section class="auth-panel auth-form-panel auth-form-panel--scroll">
+    <h2>{{ step_name }}</h2>
+
+    {% if form.non_field_errors %}
+      <div class="form-errors" role="alert">
+        {% for error in form.non_field_errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block wizard_form %}{% endblock %}
+  </section>
+
+</div>
+{% endblock %}

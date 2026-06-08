@@ -1,0 +1,16 @@
+{% extends "web/base_auth.html" %}
+
+{% block title %}Registration Complete · SMS{% endblock %}
+
+{% block body %}
+<div class="auth-shell" style="align-items:center;justify-content:center">
+  <div style="text-align:center;max-width:480px;padding:3rem">
+    <div class="brand-mark large" style="margin:0 auto 1.5rem">✓</div>
+    <h1>You're all set!</h1>
+    <p>Your college workspace has been created. Redirecting to your dashboard…</p>
+    <a class="btn btn-primary" href="{% url 'web:dashboard' %}" style="margin-top:1.5rem">
+      Go to Dashboard &rarr;
+    </a>
+  </div>
+</div>
+{% endblock %}

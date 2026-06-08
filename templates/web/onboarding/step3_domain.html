@@ -1,0 +1,39 @@
+{% extends "web/onboarding/base_wizard.html" %}
+
+{% block wizard_form %}
+<div class="summary-card" style="margin-bottom:1.5rem;padding:1rem 1.25rem;background:var(--surface-2,#f5f7fa);border-radius:var(--radius-md,8px)">
+  <p style="margin:0;font-size:.875rem">
+    <strong>{{ college_name }}</strong> &middot;
+    {{ plan_name }} &middot;
+    {{ billing_cycle|title }}
+  </p>
+</div>
+
+<form method="post" class="form-grid" novalidate>
+  {% csrf_token %}
+
+  <label class="field {% if form.subdomain.errors %}field--error{% endif %}">
+    <span>{{ form.subdomain.label }} <sup>*</sup></span>
+    <div class="input-addon-wrap">
+      {{ form.subdomain }}
+      <span class="input-addon-suffix">.cms.yourdomain.com</span>
+    </div>
+    {% if form.subdomain.help_text %}
+      <small class="field-help">{{ form.subdomain.help_text }}</small>
+    {% endif %}
+    {% if form.subdomain.errors %}
+      <span class="field-error">{{ form.subdomain.errors|first }}</span>
+    {% endif %}
+  </label>
+
+  <div class="notice notice--info" style="margin-top:.5rem">
+    <strong>This cannot be changed later</strong> without contacting support.
+    Choose a short, permanent slug for your institution.
+  </div>
+
+  <div style="display:flex;gap:1rem;margin-top:1.5rem">
+    <a class="btn btn-outline" href="{% url 'web:register_step2' %}">&larr; Back</a>
+    <button class="btn btn-primary" type="submit">Complete Registration ✓</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "web/onboarding/base_wizard.html" %}
+
+{% block wizard_form %}
+<form method="post" class="form-grid" novalidate>
+  {% csrf_token %}
+
+  <div class="form-section-label">Institution Details</div>
+
+  {% for field_name in "college_name,college_code,official_email,official_phone,city,state,country"|split:"," %}
+    {% with field=form|getitem:field_name %}
+    <label class="field {% if field.errors %}field--error{% endif %}">
+      <span>{{ field.label }}{% if field.field.required %} <sup>*</sup>{% endif %}</span>
+      {{ field }}
+      {% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}
+      {% if field.errors %}<span class="field-error">{{ field.errors|first }}</span>{% endif %}
+    </label>
+    {% endwith %}
+  {% endfor %}
+
+  <div class="form-section-label" style="margin-top:1.5rem">Admin Account</div>
+  <p class="muted" style="margin:0 0 1rem">This becomes your College Admin login.</p>
+
+  {% for field_name in "admin_first_name,admin_last_name,admin_email,admin_password,admin_password_confirm"|split:"," %}
+    {% with field=form|getitem:field_name %}
+    <label class="field {% if field.errors %}field--error{% endif %}">
+      <span>{{ field.label }}{% if field.field.required %} <sup>*</sup>{% endif %}</span>
+      {{ field }}
+      {% if field.errors %}<span class="field-error">{{ field.errors|first }}</span>{% endif %}
+    </label>
+    {% endwith %}
+  {% endfor %}
+
+  <button class="btn btn-primary btn-full" type="submit" style="margin-top:1rem">
+    Continue to Plan Selection &rarr;
+  </button>
+</form>
+{% endblock %}

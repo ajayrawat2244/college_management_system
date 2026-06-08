@@ -1,0 +1,44 @@
+{% extends "web/onboarding/base_wizard.html" %}
+
+{% block wizard_form %}
+<form method="post" class="form-grid" novalidate>
+  {% csrf_token %}
+
+  <div class="form-section-label">Billing Cycle</div>
+  <div class="radio-group" role="group" aria-label="Billing cycle">
+    {% for radio in form.billing_cycle %}
+      <label class="radio-card">
+        {{ radio.tag }}
+        <span>{{ radio.choice_label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+  {% if form.billing_cycle.errors %}
+    <span class="field-error">{{ form.billing_cycle.errors|first }}</span>
+  {% endif %}
+
+  <div class="form-section-label" style="margin-top:1.5rem">Select a Plan</div>
+  <div class="plan-cards" role="group" aria-label="Subscription plan">
+    {% for radio in form.plan %}
+      <label class="plan-card">
+        {{ radio.tag }}
+        <div class="plan-card-body">
+          <strong>{{ radio.choice_label }}</strong>
+        </div>
+      </label>
+    {% endfor %}
+  </div>
+  {% if form.plan.errors %}
+    <span class="field-error">{{ form.plan.errors|first }}</span>
+  {% endif %}
+
+  <p class="muted" style="margin-top:1rem;font-size:.85rem">
+    All plans include a 14-day free trial. No credit card required to start.
+  </p>
+
+  <div style="display:flex;gap:1rem;margin-top:1.5rem">
+    <a class="btn btn-outline" href="{% url 'web:register_step1' %}">&larr; Back</a>
+    <button class="btn btn-primary" type="submit">Continue to Domain Setup &rarr;</button>
+  </div>
+</form>
+{% endblock %}

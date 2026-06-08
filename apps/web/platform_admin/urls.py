@@ -1,0 +1,8 @@
+# apps/web/platform_admin/urls.py
+from django.urls import path
+
+from apps.web.platform_admin.views import PlatformDashboardView
+
+urlpatterns = [
+    path("", PlatformDashboardView.as_view(), name="platform_dashboard"),
+]

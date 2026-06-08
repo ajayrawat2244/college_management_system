@@ -1,0 +1,20 @@
+{% extends "web/base_auth.html" %}
+
+{% block title %}College Not Found · SMS{% endblock %}
+
+{% block body %}
+<div class="auth-shell" style="align-items:center;justify-content:center">
+  <div style="text-align:center;max-width:480px;padding:3rem">
+    <div class="brand-mark large" style="margin:0 auto 1.5rem;font-size:2.5rem">404</div>
+    <h1>College not found</h1>
+    <p>
+      The subdomain you're trying to access doesn't match any registered college on this platform.
+      Please check the URL or contact your administrator.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem">
+      <a class="btn btn-outline" href="{% url 'web:register_step1' %}">Register a college</a>
+      <a class="btn btn-primary" href="{% url 'web:login' %}">Go to login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
