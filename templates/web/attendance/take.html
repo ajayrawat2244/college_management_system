@@ -1,0 +1,115 @@
+{% extends "web/base.html" %}
+{% block title %}Mark Attendance · {{ session.session_date }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Mark Attendance</h1>
+    <p class="muted">
+      {{ session.subject_offering.subject.name }} &middot;
+      Section {{ session.subject_offering.section.name }} &middot;
+      {{ session.session_date|date:"l, N j, Y" }}
+    </p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:attendance_session_list' %}">&larr; Sessions</a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+
+  <section class="card" style="margin-bottom:20px">
+    <div class="card-head">
+      <h2>Students ({{ students|length }})</h2>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn btn-outline btn-sm" onclick="markAll('present')">All Present</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="markAll('absent')">All Absent</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Roll No.</th>
+            <th>Student</th>
+            <th>Status</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in students %}
+          <tr>
+            <td><code>{{ item.enrollment.roll_no|default:"—" }}</code></td>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ item.enrollment.student.user.first_name|first|upper }}{{ item.enrollment.student.user.last_name|first|upper }}</div>
+                <span class="cell-name">{{ item.enrollment.student.user.get_full_name }}</span>
+              </div>
+            </td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                {% for code, label in status_choices %}
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.8rem;padding:4px 10px;border-radius:100px;border:1.5px solid var(--line-2);background:var(--surface-2);transition:all .1s">
+                  <input type="radio" name="status_{{ item.enrollment.id }}"
+                         value="{{ code }}"
+                         class="attendance-radio"
+                         data-status="{{ code }}"
+                         {% if item.current_status == code %}checked{% endif %}
+                         style="display:none">
+                  <span>{{ label }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </td>
+            <td>
+              <input type="text" name="remarks_{{ item.enrollment.id }}"
+                     placeholder="Optional note"
+                     style="width:100%;max-width:180px;padding:5px 10px;border:1.5px solid var(--line-2);border-radius:var(--r-sm);font-size:.8rem;background:var(--surface-1);color:var(--text-1)">
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="empty-state">No students enrolled in this section.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="card" style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;cursor:pointer">
+      <input type="checkbox" name="close_session" value="1" checked>
+      Close session after saving
+    </label>
+    <div style="display:flex;gap:12px">
+      <a class="btn btn-outline" href="{% url 'web:attendance_session_list' %}">Cancel</a>
+      <button class="btn btn-primary" type="submit">Save Attendance</button>
+    </div>
+  </div>
+</form>
+
+<script>
+function markAll(status) {
+  document.querySelectorAll('.attendance-radio[data-status="' + status + '"]').forEach(function(radio) {
+    radio.checked = true;
+    updateRadioStyle(radio);
+  });
+}
+function updateRadioStyle(radio) {
+  const labels = radio.closest('td').querySelectorAll('label');
+  labels.forEach(function(label) {
+    const r = label.querySelector('input[type=radio]');
+    if (r && r.checked) {
+      label.style.borderColor = 'var(--brand)';
+      label.style.background = 'var(--brand-ghost)';
+      label.style.color = 'var(--brand)';
+    } else {
+      label.style.borderColor = 'var(--line-2)';
+      label.style.background = 'var(--surface-2)';
+      label.style.color = '';
+    }
+  });
+}
+document.querySelectorAll('.attendance-radio').forEach(function(radio) {
+  updateRadioStyle(radio);
+  radio.addEventListener('change', function() { updateRadioStyle(this); });
+});
+</script>
+{% endblock %}

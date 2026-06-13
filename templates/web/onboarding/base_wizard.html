@@ -1,48 +1,48 @@
 {% extends "web/base_auth.html" %}
 {% load static %}
 
-{% block title %}Register Your College · Step {{ current_step }} of {{ total_steps }}{% endblock %}
+{% block title %}Register · Step {{ current_step }} of {{ total_steps }}{% endblock %}
 
 {% block body %}
-<div class="auth-shell auth-shell--wide">
+<div class="auth-shell" style="max-width:1080px">
 
-  {# ── Left: branding + step progress ───────────────────── #}
+  {# ── Left: branding + progress ─────────────────────── #}
   <section class="auth-panel auth-branding">
     <div class="brand-mark large">SMS</div>
     <h1>Register your college</h1>
-    <p>Set up your institution's workspace in three simple steps.</p>
+    <p>Set up your institution workspace in three steps — free 14-day trial, no card required.</p>
 
-    <div class="wizard-steps">
+    <div style="margin-top:2rem;display:grid;gap:16px;position:relative;z-index:1">
       {% for n, label in steps.items %}
-        <div class="wizard-step {% if n == current_step %}wizard-step--active{% elif n < current_step %}wizard-step--done{% endif %}">
-          <div class="wizard-step-dot">
-            {% if n < current_step %}✓{% else %}{{ n }}{% endif %}
-          </div>
-          <span>{{ label }}</span>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="
+            width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+            font-size:.75rem;font-weight:800;flex-shrink:0;
+            {% if n < current_step %}background:#22c55e;color:#fff;{% elif n == current_step %}background:rgba(255,255,255,.18);color:#fff;border:2px solid rgba(255,255,255,.5){% else %}background:rgba(255,255,255,.06);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1){% endif %}
+          ">{% if n < current_step %}✓{% else %}{{ n }}{% endif %}</div>
+          <span style="font-size:.84rem;font-weight:{% if n == current_step %}600{% else %}400{% endif %};color:{% if n == current_step %}rgba(255,255,255,.92){% elif n < current_step %}rgba(255,255,255,.6){% else %}rgba(255,255,255,.28){% endif %}">{{ label }}</span>
         </div>
       {% endfor %}
     </div>
 
-    <p class="auth-footer-note" style="margin-top:3rem">
-      Already have an account?
-      <a href="{% url 'web:login' %}" style="color:inherit;text-decoration:underline">Sign in</a>
+    <p style="margin-top:3rem;font-size:.78rem;color:rgba(255,255,255,.3);position:relative;z-index:1">
+      Already registered?
+      <a href="{% url 'web:login' %}" style="color:rgba(255,255,255,.55);text-decoration:underline">Sign in</a>
     </p>
   </section>
 
-  {# ── Right: form content ───────────────────────────────── #}
-  <section class="auth-panel auth-form-panel auth-form-panel--scroll">
-    <h2>{{ step_name }}</h2>
+  {# ── Right: form ──────────────────────────────────── #}
+  <section class="auth-panel auth-form-panel" style="overflow-y:auto;max-height:100vh">
+    <h2 style="margin-bottom:4px">{{ step_name }}</h2>
+    <span class="muted" style="margin-bottom:28px;display:block">Step {{ current_step }} of {{ total_steps }}</span>
 
     {% if form.non_field_errors %}
-      <div class="form-errors" role="alert">
-        {% for error in form.non_field_errors %}
-          <p class="form-error">{{ error }}</p>
-        {% endfor %}
+      <div class="alert alert-danger" style="margin-bottom:1.5rem" role="alert">
+        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
       </div>
     {% endif %}
 
     {% block wizard_form %}{% endblock %}
   </section>
-
 </div>
 {% endblock %}

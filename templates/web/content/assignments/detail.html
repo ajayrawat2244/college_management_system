@@ -1,0 +1,105 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}{{ assignment.title }} · Assignments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ assignment.title }}</h1>
+    <p class="muted">
+      {{ assignment.subject_offering.subject.name }} &middot;
+      Section {{ assignment.subject_offering.section.name }} &middot;
+      Max: {{ assignment.max_marks }} marks
+    </p>
+  </div>
+  <div style="display:flex;gap:10px">
+    <form method="post" style="display:inline">
+      {% csrf_token %}
+      {% if assignment.status == 'draft' %}
+        <button class="btn btn-primary" name="action" value="publish" type="submit">Publish</button>
+      {% elif assignment.status == 'published' %}
+        <button class="btn btn-outline" name="action" value="close" type="submit">Close Submissions</button>
+      {% endif %}
+    </form>
+    <a class="btn btn-outline" href="{% url 'web:assignment_list' %}">&larr; Assignments</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Submissions ({{ submitted_count }})</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Submitted</th><th>Status</th><th>Marks</th><th></th></tr></thead>
+        <tbody>
+          {% for sub in submissions %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ sub.student.user.first_name|first|upper }}{{ sub.student.user.last_name|first|upper }}</div>
+                <span class="cell-name">{{ sub.student.user.get_full_name }}</span>
+              </div>
+            </td>
+            <td style="font-size:.8rem;color:var(--muted)">{{ sub.submitted_at|date:"N j, Y H:i"|default:"—" }}</td>
+            <td>
+              {% if sub.status == 'graded' %}<span class="badge success">Graded</span>
+              {% elif sub.status == 'submitted' %}<span class="badge info">Submitted</span>
+              {% elif sub.status == 'late' %}<span class="badge warning">Late</span>
+              {% else %}<span class="badge muted">{{ sub.status|capfirst }}</span>{% endif %}
+            </td>
+            <td>{% if sub.marks_obtained is not None %}{{ sub.marks_obtained }} / {{ assignment.max_marks }}{% else %}<span class="muted">—</span>{% endif %}</td>
+            <td style="text-align:right">
+              <a class="btn btn-outline btn-sm" href="{% url 'web:grade_submission' assignment_id=assignment.id submission_id=sub.id %}">
+                {% if sub.status == 'graded' %}Edit Grade{% else %}Grade{% endif %}
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No submissions yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div style="display:grid;gap:16px">
+    <section class="card">
+      <div class="card-head"><h2>Details</h2></div>
+      <div style="padding:16px 20px;display:grid;gap:10px">
+        <div class="detail-row"><span class="detail-label">Status</span>
+          {% if assignment.status == 'published' %}<span class="badge success">Published</span>
+          {% elif assignment.status == 'draft' %}<span class="badge muted">Draft</span>
+          {% elif assignment.status == 'closed' %}<span class="badge muted">Closed</span>
+          {% else %}<span class="badge muted">{{ assignment.status|capfirst }}</span>{% endif %}
+        </div>
+        <div class="detail-row"><span class="detail-label">Due</span>
+          {% if assignment.due_at %}{{ assignment.due_at|date:"N j, Y H:i" }}{% else %}No deadline{% endif %}
+        </div>
+        <div class="detail-row"><span class="detail-label">Max marks</span>{{ assignment.max_marks }}</div>
+        <div class="detail-row"><span class="detail-label">Submissions</span>{{ submitted_count }}</div>
+      </div>
+    </section>
+    {% if assignment.description %}
+    <section class="card">
+      <div class="card-head"><h2>Description</h2></div>
+      <div style="padding:16px 20px;font-size:.875rem;color:var(--text-2);line-height:1.6">{{ assignment.description }}</div>
+    </section>
+    {% endif %}
+    {% if assignment.attachment_file_asset %}
+    <section class="card">
+      <div class="card-head"><h2>Attachment</h2></div>
+      <div style="padding:16px 20px">
+        {% if assignment.attachment_file_asset.file %}
+          <a href="{{ assignment.attachment_file_asset.file.url }}" class="btn btn-outline btn-sm" download>
+            Download: {{ assignment.attachment_file_asset.original_filename|truncatechars:30 }}
+          </a>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

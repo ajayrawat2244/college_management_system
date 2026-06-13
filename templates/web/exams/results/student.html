@@ -1,0 +1,47 @@
+{% extends "web/base.html" %}
+{% block title %}My Results · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>My Results</h1><p class="muted">Published examination results.</p></div>
+</div>
+
+{% if results %}
+  <section class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Exam</th><th>Subject</th><th>Marks</th><th>Grade</th><th>GPA</th><th>Remarks</th></tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+          <tr>
+            <td>
+              <strong>{{ r.exam_paper.exam.name }}</strong>
+              <div class="muted" style="font-size:.75rem">{{ r.exam_paper.exam.academic_year.name }}</div>
+            </td>
+            <td>{{ r.exam_paper.subject_offering.subject.name }}</td>
+            <td>
+              {% if r.marks_obtained is not None %}
+                <strong>{{ r.marks_obtained }}</strong>
+                <span class="muted" style="font-size:.8rem">/ {{ r.exam_paper.max_marks }}</span>
+              {% else %}<span class="muted">—</span>{% endif %}
+            </td>
+            <td>
+              {% if r.grade_label %}
+                <span class="badge info" style="font-size:.82rem">{{ r.grade_label }}</span>
+              {% else %}<span class="muted">—</span>{% endif %}
+            </td>
+            <td>{{ r.grade_point|default:"—" }}</td>
+            <td>{{ r.remarks|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% else %}
+  <div class="card" style="padding:60px;text-align:center">
+    <p class="muted">No published results yet. Check back after your exams.</p>
+  </div>
+{% endif %}
+{% endblock %}

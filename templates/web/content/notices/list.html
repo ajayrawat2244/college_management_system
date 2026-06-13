@@ -1,0 +1,55 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Notices · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Notices</h1><p class="muted">Announcements posted to students, teachers, or all.</p></div>
+  {% if can_create %}
+    <a class="btn btn-primary" href="{% url 'web:notice_create' %}">+ Post Notice</a>
+  {% endif %}
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Title</th><th>Audience</th><th>Priority</th><th>Published</th><th>Expires</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for notice in notices %}
+        <tr>
+          <td>
+            <strong>{{ notice.title }}</strong>
+            {% if notice.file_asset %}
+              <svg style="width:13px;height:13px;margin-left:5px;color:var(--brand);vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {% endif %}
+          </td>
+          <td>
+            <span class="chip">{{ notice.audience_scope|capfirst }}</span>
+            {% if notice.target_section %}<span class="muted" style="font-size:.76rem;margin-left:4px">{{ notice.target_section.name }}</span>{% endif %}
+          </td>
+          <td>
+            {% if notice.priority > 0 %}
+              <span class="badge {% if notice.priority >= 7 %}danger{% elif notice.priority >= 4 %}warning{% else %}info{% endif %}">{{ notice.priority }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td style="font-size:.8rem;color:var(--muted)">{{ notice.publish_at|date:"N j, Y"|default:"—" }}</td>
+          <td style="font-size:.8rem;color:var(--muted)">{{ notice.expires_at|date:"N j, Y"|default:"—" }}</td>
+          <td>
+            {% if notice.status == 'published' %}<span class="badge success">Published</span>
+            {% elif notice.status == 'draft' %}<span class="badge muted">Draft</span>
+            {% elif notice.status == 'archived' %}<span class="badge muted">Archived</span>
+            {% else %}<span class="badge muted">{{ notice.status|capfirst }}</span>{% endif %}
+          </td>
+          <td style="text-align:right">
+            <a class="btn btn-outline btn-sm" href="{% url 'web:notice_detail' notice_id=notice.id %}">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No notices yet. <a href="{% url 'web:notice_create' %}">Post one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

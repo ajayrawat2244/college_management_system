@@ -1,0 +1,82 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}{{ material.title }} · Materials{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ material.title }}</h1>
+    <p class="muted">{{ material.material_type|capfirst }} &middot; {{ material.visibility|capfirst }} &middot;
+      {% if material.status == 'published' %}<span class="badge success">Published</span>
+      {% else %}<span class="badge muted">{{ material.status|capfirst }}</span>{% endif %}
+    </p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:material_list' %}">&larr; Materials</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Content</h2></div>
+    <div style="padding:20px 24px">
+      {% if material.description %}
+        <p style="margin-bottom:16px;color:var(--text-2)">{{ material.description }}</p>
+      {% endif %}
+      {% if material.external_url %}
+        <a href="{{ material.external_url }}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-bottom:12px">
+          Open Link / Video ↗
+        </a>
+      {% endif %}
+      {% if material.file_asset %}
+        <div style="padding:16px;background:var(--surface-2);border-radius:var(--r-sm);display:flex;align-items:center;gap:14px">
+          <svg style="width:28px;height:28px;flex-shrink:0;color:var(--brand)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <div>
+            <div style="font-weight:600;font-size:.875rem">{{ material.file_asset.original_filename }}</div>
+            <div class="muted" style="font-size:.75rem">{{ material.file_asset.content_type }}</div>
+          </div>
+          {% if material.file_asset.file %}
+            <a href="{{ material.file_asset.file.url }}" class="btn btn-outline btn-sm" download style="margin-left:auto">Download</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <div style="display:grid;gap:16px">
+    <section class="card">
+      <div class="card-head"><h2>Details</h2></div>
+      <div style="padding:16px 20px;display:grid;gap:10px">
+        <div class="detail-row"><span class="detail-label">Type</span>{{ material.material_type|capfirst }}</div>
+        <div class="detail-row"><span class="detail-label">Visibility</span>{{ material.visibility|capfirst }}</div>
+        {% if material.subject_offering %}
+          <div class="detail-row"><span class="detail-label">Subject</span>{{ material.subject_offering.subject.name }}</div>
+          <div class="detail-row"><span class="detail-label">Section</span>{{ material.subject_offering.section.name }}</div>
+        {% endif %}
+        <div class="detail-row"><span class="detail-label">Created by</span>{{ material.created_by.get_full_name|default:material.created_by.email }}</div>
+        <div class="detail-row"><span class="detail-label">Created</span>{{ material.created_at|date:"N j, Y" }}</div>
+        {% if material.published_at %}
+          <div class="detail-row"><span class="detail-label">Published</span>{{ material.published_at|date:"N j, Y" }}</div>
+        {% endif %}
+      </div>
+    </section>
+
+    {% has_role 'college_admin' 'teacher' as can_manage %}
+    {% if can_manage or request.user.is_superuser %}
+    <section class="card">
+      <div class="card-head"><h2>Actions</h2></div>
+      <div style="padding:16px 20px;display:grid;gap:8px">
+        <form method="post">
+          {% csrf_token %}
+          {% if material.status != 'published' %}
+            <button class="btn btn-primary btn-full" name="action" value="publish" type="submit">Publish</button>
+          {% endif %}
+          {% if material.status != 'archived' %}
+            <button class="btn btn-outline btn-full" name="action" value="archive" type="submit" style="margin-top:8px">Archive</button>
+          {% endif %}
+        </form>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

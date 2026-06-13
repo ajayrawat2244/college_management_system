@@ -1,10 +1,10 @@
 # apps/web/mixins.py
 """
-Shared view mixins for the web layer.
+Shared view mixins for the web layer (Django CBV — not DRF).
 
-These are Django class-based view mixins — NOT DRF mixins.
-They mirror the DRF CollegeScopedMixin / permission pattern
-but work with Django's LoginRequiredMixin / View pattern.
+MRO for combined mixins:
+    CollegeAdminRequiredMixin → LoginRequiredMixin → TenantRequiredMixin → View
+    dispatch() is called left-to-right; each super() call cascades.
 """
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -21,10 +21,9 @@ from apps.platforms.permissions import (
 class TenantRequiredMixin:
     """
     Ensures request.college is resolved before proceeding.
-    On failure: renders a friendly 'no tenant' error page instead of a
-    JSON 403 (which the DRF permission would produce).
-
-    Place AFTER LoginRequiredMixin in MRO so the user is authenticated first.
+    Redirects to web:no_tenant (not JSON 403) when tenant is missing.
+    Must appear AFTER LoginRequiredMixin in class declaration so the
+    user is authenticated before we check the tenant.
     """
 
     def dispatch(self, request, *args, **kwargs):
@@ -34,25 +33,26 @@ class TenantRequiredMixin:
 
 
 class CollegeAdminRequiredMixin(LoginRequiredMixin, TenantRequiredMixin):
-    """
-    Gate: user must be authenticated + tenant resolved + have college_admin role
-    (or be a platform superuser).
-    """
+    """Requires: authenticated + tenant resolved + college_admin role (or superuser)."""
+
+    login_url = "web:login"
 
     def dispatch(self, request, *args, **kwargs):
+        # LoginRequiredMixin.dispatch will redirect if not authenticated
         response = super().dispatch(request, *args, **kwargs)
-        # super() already checked login + tenant; now check role
         if not request.user.is_authenticated:
-            return response  # LoginRequiredMixin already redirects
+            return response
         if request.user.is_superuser:
             return response
         if not _has_role(request.user, request.college, ROLE_COLLEGE_ADMIN):
-            raise PermissionDenied("You do not have college admin access.")
+            raise PermissionDenied("You need college admin access for this page.")
         return response
 
 
 class TeacherRequiredMixin(LoginRequiredMixin, TenantRequiredMixin):
-    """Gate: college_admin or teacher within the resolved college."""
+    """Requires: authenticated + tenant + college_admin or teacher role."""
+
+    login_url = "web:login"
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -60,15 +60,15 @@ class TeacherRequiredMixin(LoginRequiredMixin, TenantRequiredMixin):
             return response
         if request.user.is_superuser:
             return response
-        if not _has_role(
-            request.user, request.college, ROLE_COLLEGE_ADMIN, ROLE_TEACHER
-        ):
-            raise PermissionDenied("You do not have teacher access.")
+        if not _has_role(request.user, request.college, ROLE_COLLEGE_ADMIN, ROLE_TEACHER):
+            raise PermissionDenied("You need teacher or admin access for this page.")
         return response
 
 
 class StudentRequiredMixin(LoginRequiredMixin, TenantRequiredMixin):
-    """Gate: any authenticated role within the resolved college."""
+    """Requires: authenticated + tenant + any role within the college."""
+
+    login_url = "web:login"
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
@@ -77,22 +77,42 @@ class StudentRequiredMixin(LoginRequiredMixin, TenantRequiredMixin):
         if request.user.is_superuser:
             return response
         if not _has_role(
-            request.user,
-            request.college,
-            ROLE_COLLEGE_ADMIN,
-            ROLE_TEACHER,
-            ROLE_STUDENT,
+            request.user, request.college,
+            ROLE_COLLEGE_ADMIN, ROLE_TEACHER, ROLE_STUDENT,
         ):
-            raise PermissionDenied("You do not have access to this college.")
+            raise PermissionDenied("You do not have access to this college portal.")
         return response
 
 
 class SuperUserRequiredMixin(LoginRequiredMixin):
-    """Gate: platform-level superuser only (no tenant needed)."""
+    """Requires: authenticated + is_superuser (platform level — no tenant needed)."""
+
+    login_url = "web:login"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
         if not request.user.is_superuser:
             raise PermissionDenied("Only platform superusers can access this area.")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class SubscriptionFeatureMixin:
+    """
+    Checks that the resolved college's active subscription includes
+    ``required_feature``.  Set this attribute on the view class.
+
+    Example:
+        class ExamResultsView(CollegeAdminRequiredMixin, SubscriptionFeatureMixin, View):
+            required_feature = "exam_results"
+    """
+
+    required_feature = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if self.required_feature:
+            from apps.platforms.services.subscription import SubscriptionService
+            college = getattr(request, "college", None)
+            if college and not SubscriptionService.college_has_feature(college, self.required_feature):
+                return redirect("web:subscription_required")
         return super().dispatch(request, *args, **kwargs)

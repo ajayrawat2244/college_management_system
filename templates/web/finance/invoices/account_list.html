@@ -1,0 +1,34 @@
+{% extends "web/base.html" %}
+{% block title %}Student Fee Accounts · Finance{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Student Fee Accounts</h1><p class="muted">One fee account per enrolled student.</p></div>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Fee Structure</th><th>Balance</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for acct in accounts %}
+        <tr>
+          <td>
+            <div class="cell-user">
+              <div class="cell-avatar">{{ acct.student.user.first_name|first|upper }}{{ acct.student.user.last_name|first|upper }}</div>
+              <div>
+                <div class="cell-name">{{ acct.student.user.get_full_name }}</div>
+                <div class="cell-sub">{{ acct.student.admission_no|default:"" }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ acct.fee_structure.name }}</td>
+          <td><strong>₹{{ acct.current_balance|floatformat:2 }}</strong></td>
+          <td><span class="badge {% if acct.status == 'active' %}success{% else %}muted{% endif %}">{{ acct.status|capfirst }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty-state">No student fee accounts found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

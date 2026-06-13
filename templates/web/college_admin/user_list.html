@@ -1,0 +1,72 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}Users · {{ college.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Users</h1>
+    <p class="muted">Manage staff, teachers and students in {{ college.name }}.</p>
+  </div>
+  <div>
+    <a class="btn btn-primary" href="{% url 'web:invite_user' %}">
+      <svg style="width:14px;height:14px;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add User
+    </a>
+  </div>
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                <div>
+                  <div class="cell-name">{{ user.get_full_name|default:"—" }}</div>
+                  {% if user == request.user %}<div class="cell-sub">You</div>{% endif %}
+                </div>
+              </div>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>
+              {% for ur in user.user_roles.all %}
+                <span class="badge info" style="margin-right:4px">{{ ur.role.name }}</span>
+              {% empty %}
+                <span class="muted">—</span>
+              {% endfor %}
+            </td>
+            <td>
+              <span class="badge {{ user.status|user_status_class }}">{{ user.status|capfirst }}</span>
+            </td>
+            <td style="text-align:right">
+              <a class="btn btn-outline btn-sm" href="{% url 'web:user_detail' user_id=user.id %}">
+                View
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="empty-state">No users found. <a href="{% url 'web:invite_user' %}">Add the first user</a>.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

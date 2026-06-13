@@ -1,0 +1,76 @@
+{% extends "web/base.html" %}
+{% block title %}Session {{ session.session_date }} · Attendance{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Attendance Session</h1>
+    <p class="muted">
+      {{ session.subject_offering.subject.name }} &middot;
+      Section {{ session.subject_offering.section.name }} &middot;
+      {{ session.session_date|date:"l, N j, Y" }}
+    </p>
+  </div>
+  <div style="display:flex;gap:10px">
+    {% if session.status == 'open' %}
+      <a class="btn btn-primary" href="{% url 'web:attendance_take' session_id=session.id %}">Edit Attendance</a>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'web:attendance_session_list' %}">&larr; Sessions</a>
+  </div>
+</div>
+
+{# ── KPI row ─────────────────────────────────────────────── #}
+<div class="stats-grid" style="margin-bottom:24px">
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner"><div><span>Present</span><strong>{{ present }}</strong></div></div>
+    <div class="stat-sub">{{ attendance_pct }}% attendance</div>
+  </article>
+  <article class="stat-card stat-card--dark">
+    <div class="stat-inner"><div><span>Absent</span><strong>{{ absent }}</strong></div></div>
+    <div class="stat-sub">out of {{ total }}</div>
+  </article>
+  <article class="stat-card stat-card--lavender">
+    <div class="stat-inner"><div><span>Late</span><strong>{{ late }}</strong></div></div>
+  </article>
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div><span>Session</span><strong style="font-size:1rem">{% if session.status == 'open' %}Open{% else %}Closed{% endif %}</strong></div>
+    </div>
+    <div class="stat-sub">{{ session.session_date|date:"N j, Y" }}</div>
+  </article>
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Roll No.</th><th>Student</th><th>Status</th><th>Remarks</th></tr></thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td><code>{{ record.enrollment.roll_no|default:"—" }}</code></td>
+          <td>
+            <div class="cell-user">
+              <div class="cell-avatar">{{ record.enrollment.student.user.first_name|first|upper }}{{ record.enrollment.student.user.last_name|first|upper }}</div>
+              <span class="cell-name">{{ record.enrollment.student.user.get_full_name }}</span>
+            </div>
+          </td>
+          <td>
+            {% if record.attendance_status == 'present' %}
+              <span class="badge success">Present</span>
+            {% elif record.attendance_status == 'absent' %}
+              <span class="badge danger">Absent</span>
+            {% elif record.attendance_status == 'late' %}
+              <span class="badge warning">Late</span>
+            {% else %}
+              <span class="badge muted">{{ record.attendance_status|capfirst }}</span>
+            {% endif %}
+          </td>
+          <td>{{ record.remarks|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty-state">No records. <a href="{% url 'web:attendance_take' session_id=session.id %}">Mark attendance now</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

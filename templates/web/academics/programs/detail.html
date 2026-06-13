@@ -1,0 +1,53 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}{{ program.name }} · Programs{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ program.name }}</h1>
+    <p class="muted"><code>{{ program.code }}</code> &middot; {{ program.level|capfirst }} &middot; <span class="badge {% if program.status == 'active' %}success{% else %}muted{% endif %}">{{ program.status|capfirst }}</span></p>
+  </div>
+  <div style="display:flex;gap:10px">
+    {% has_role 'college_admin' as is_admin %}
+    {% if is_admin or request.user.is_superuser %}
+      <a class="btn btn-primary" href="{% url 'web:batch_create' %}">+ Add Batch</a>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'web:program_list' %}">&larr; Programs</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:start">
+  <section class="card">
+    <div class="card-head"><h2>Details</h2></div>
+    <div style="padding:18px 20px;display:grid;gap:12px">
+      <div class="detail-row"><span class="detail-label">Code</span><code>{{ program.code }}</code></div>
+      <div class="detail-row"><span class="detail-label">Level</span>{{ program.level|capfirst }}</div>
+      <div class="detail-row"><span class="detail-label">Department</span>{{ program.department.name|default:"—" }}</div>
+      <div class="detail-row"><span class="detail-label">Duration</span>{% if program.duration_terms %}{{ program.duration_terms }} term{{ program.duration_terms|pluralize }}{% else %}—{% endif %}</div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="badge {% if program.status == 'active' %}success{% else %}muted{% endif %}">{{ program.status|capfirst }}</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Batches</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Batch</th><th>Academic Year</th><th>Intake</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for batch in batches %}
+          <tr>
+            <td><strong>{{ batch.name }}</strong></td>
+            <td>{{ batch.academic_year.name }}</td>
+            <td>{{ batch.intake_year|default:"—" }}</td>
+            <td><span class="badge {% if batch.status == 'active' %}success{% else %}muted{% endif %}">{{ batch.status|capfirst }}</span></td>
+            <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:batch_list' %}">Sections</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No batches for this program yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

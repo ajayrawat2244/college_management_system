@@ -1,0 +1,106 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}My Dashboard · {{ college.name }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>My Dashboard</h1>
+    <p class="muted">
+      Welcome, {{ request.user.first_name }}.
+      {% if student %}Admission No: <strong>{{ student.admission_no|default:"—" }}</strong>{% endif %}
+    </p>
+  </div>
+</div>
+
+{% if pending_fee_count %}
+  <div class="alert alert-warning" style="margin-bottom:20px">
+    You have <strong>{{ pending_fee_count }} pending fee invoice{{ pending_fee_count|pluralize }}</strong>.
+    <a href="#" style="margin-left:10px;font-weight:700">Pay now &rarr;</a>
+  </div>
+{% endif %}
+
+<div class="stats-grid">
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div>
+        <span>My Subjects</span>
+        <strong>{{ my_subjects|length }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{% if current_term %}{{ current_term.name }}{% else %}Current term{% endif %}</div>
+  </article>
+
+  <article class="stat-card stat-card--dark">
+    <div class="stat-inner">
+      <div>
+        <span>Pending Fees</span>
+        <strong>{{ pending_fee_count }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">invoice{{ pending_fee_count|pluralize }} outstanding</div>
+  </article>
+
+  {% if current_enroll %}
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner">
+      <div>
+        <span>Program</span>
+        <strong style="font-size:1rem">{{ current_enroll.section.batch.program.name|truncatechars:18 }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ current_enroll.section.batch.name }}</div>
+  </article>
+  {% endif %}
+</div>
+
+<section class="card" style="margin-top:24px">
+  <div class="card-head">
+    <h2>My Subjects {% if current_term %}— {{ current_term.name }}{% endif %}</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Teacher</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for offering in my_subjects %}
+          <tr>
+            <td><strong>{{ offering.subject.name }}</strong></td>
+            <td>
+              {% if offering.teacher %}
+                {{ offering.teacher.user.get_full_name }}
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="2" class="empty-state">No subjects found for this term.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Section {{ section.name }} · Sections{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Section {{ section.name }}</h1>
+    <p class="muted">{{ section.batch.program.name }} &middot; {{ section.batch.name }} &middot; {{ enroll_count }} student{{ enroll_count|pluralize }}</p>
+  </div>
+  <div style="display:flex;gap:10px">
+    {% has_role 'college_admin' as is_admin %}
+    {% if is_admin or request.user.is_superuser %}
+      <a class="btn btn-primary" href="{% url 'web:enrollment_create' %}">+ Enroll Student</a>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'web:section_list' %}">&larr; Sections</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+  <section class="card">
+    <div class="card-head"><h2>Students ({{ enroll_count }})</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Roll No.</th><th>Student</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for enroll in enrollments %}
+          <tr>
+            <td><code>{{ enroll.roll_no|default:"—" }}</code></td>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ enroll.student.user.first_name|first|upper }}{{ enroll.student.user.last_name|first|upper }}</div>
+                <div>
+                  <div class="cell-name">{{ enroll.student.user.get_full_name }}</div>
+                  <div class="cell-sub">{{ enroll.student.admission_no|default:"" }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge {% if enroll.status == 'enrolled' %}success{% else %}muted{% endif %}">{{ enroll.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="empty-state">No students enrolled yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Subject Offerings</h2>
+      {% if is_admin or request.user.is_superuser %}
+        <a class="btn btn-outline btn-sm" href="{% url 'web:offering_create' %}">+ Add</a>
+      {% endif %}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Subject</th><th>Teacher</th><th>Term</th></tr></thead>
+        <tbody>
+          {% for offering in offerings %}
+          <tr>
+            <td><strong>{{ offering.subject.name }}</strong></td>
+            <td>{% if offering.teacher %}{{ offering.teacher.user.get_full_name }}{% else %}<span class="muted">Unassigned</span>{% endif %}</td>
+            <td>{{ offering.term.name|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="empty-state">No offerings assigned.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

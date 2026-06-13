@@ -1,0 +1,50 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Fee Invoices · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Fee Invoices</h1>
+    <p class="muted">{{ pending_count }} pending &nbsp;·&nbsp; Issued: ₹{{ total_issued|floatformat:0 }} &nbsp;·&nbsp; Collected: ₹{{ total_paid|floatformat:0 }}</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'web:invoice_create' %}">+ Issue Invoice</a>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Invoice No.</th><th>Student</th><th>Total</th><th>Paid</th><th>Balance</th><th>Due</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td><code>{{ inv.invoice_no }}</code></td>
+          <td>
+            <div class="cell-user">
+              <div class="cell-avatar">{{ inv.student_fee_account.student.user.first_name|first|upper }}{{ inv.student_fee_account.student.user.last_name|first|upper }}</div>
+              <span class="cell-name">{{ inv.student_fee_account.student.user.get_full_name }}</span>
+            </div>
+          </td>
+          <td>₹{{ inv.total_amount|floatformat:2 }}</td>
+          <td style="color:#166534;font-weight:600">₹{{ inv.paid_amount|floatformat:2 }}</td>
+          <td style="{% if inv.balance_amount > 0 %}color:var(--danger);font-weight:700{% endif %}">₹{{ inv.balance_amount|floatformat:2 }}</td>
+          <td style="font-size:.8rem;color:var(--muted)">{{ inv.due_date|date:"M j, Y"|default:"—" }}</td>
+          <td>
+            {% if inv.status == 'paid' %}<span class="badge success">Paid</span>
+            {% elif inv.status == 'part_paid' %}<span class="badge warning">Part Paid</span>
+            {% elif inv.status == 'overdue' %}<span class="badge danger">Overdue</span>
+            {% elif inv.status == 'issued' %}<span class="badge info">Issued</span>
+            {% elif inv.status == 'void' %}<span class="badge muted">Void</span>
+            {% else %}<span class="badge muted">{{ inv.status|capfirst }}</span>{% endif %}
+          </td>
+          <td style="text-align:right">
+            <a class="btn btn-outline btn-sm" href="{% url 'web:invoice_detail' invoice_id=inv.id %}">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state">No invoices yet. <a href="{% url 'web:invoice_create' %}">Issue one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

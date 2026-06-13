@@ -1,0 +1,41 @@
+{% extends "web/base.html" %}
+{% block title %}Invite User · {{ college.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Add User</h1>
+    <p class="muted">Create a new account and assign a role within {{ college.name }}.</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:user_list' %}">&larr; Back to Users</a>
+</div>
+
+<div style="max-width:560px">
+  <section class="card">
+    <div style="padding:24px">
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:16px">
+          {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}{% if field.field.required %} <sup style="color:var(--danger)">*</sup>{% endif %}</span>
+            {{ field }}
+            {% if field.help_text %}<small class="muted" style="font-size:.75rem">{{ field.help_text }}</small>{% endif %}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:12px;margin-top:8px">
+          <button class="btn btn-primary" type="submit">Create User</button>
+          <a class="btn btn-outline" href="{% url 'web:user_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

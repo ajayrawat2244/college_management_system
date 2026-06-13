@@ -1,103 +1,22 @@
 {% extends "web/base.html" %}
 {% load web_tags %}
 
-{% block title %}Dashboard · {% if college %}{{ college.name }}{% else %}SMS{% endif %}{% endblock %}
+{% block title %}Dashboard · {{ college.name|default:"SMS" }}{% endblock %}
 
 {% block content %}
-
-{# ── KPI stat cards ─────────────────────────────────────── #}
-<section class="stats-grid">
-
-  <article class="stat-card stat-card--indigo">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
-      <div>
-        <span>Total<br>Admissions</span>
-        <strong>{{ total_admissions }}</strong>
-      </div>
-      <div class="stat-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-      </div>
-    </div>
-    <div class="stat-subnote">Students enrolled this year</div>
-  </article>
-
-  <article class="stat-card stat-card--teal">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
-      <div>
-        <span>Total<br>Enquiries</span>
-        <strong>{{ total_enquiries }}</strong>
-      </div>
-      <div class="stat-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-      </div>
-    </div>
-    <div class="stat-subnote">{{ pending_enquiries }} pending today</div>
-  </article>
-
-  <article class="stat-card stat-card--dark">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
-      <div>
-        <span>Total<br>Revenue</span>
-        <strong>&#8377;{{ total_revenue }}</strong>
-      </div>
-      <div class="stat-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="1" x2="12" y2="23"/>
-          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-        </svg>
-      </div>
-    </div>
-    <div class="stat-subnote">Target: &#8377;{{ revenue_target }}</div>
-  </article>
-
-  <article class="stat-card stat-card--lavender">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:8px">
-      <div>
-        <span>Active<br>Courses</span>
-        <strong>{{ active_courses }}</strong>
-      </div>
-      <div class="stat-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-      </div>
-    </div>
-    <div class="stat-subnote">{{ launching_soon }} launching soon</div>
-  </article>
-
-</section>
-
-{# ── Subscription notice if trial ───────────────────────── #}
-{% if subscription_status == 'trial' %}
-<div class="flash flash--warning" style="margin-bottom:1.5rem">
-  Your college is on a <strong>trial plan</strong>.
-  {% if subscription.trial_ends_at %}
-    Trial ends {{ subscription.trial_ends_at|date:"N j, Y" }}.
-  {% endif %}
-  <a href="#" style="margin-left:1rem">Upgrade now &rarr;</a>
+<div class="page-header">
+  <div>
+    <h1>{{ page_title|default:"Dashboard" }}</h1>
+    <p class="muted">{{ page_subtitle|default:"" }}</p>
+  </div>
 </div>
-{% endif %}
 
-{# ── Quick links grid (shell — wired in later passes) ────── #}
-<section class="card">
-  <div class="card-head">
-    <h2>Quick Actions</h2>
+<div style="display:grid;place-items:center;min-height:300px">
+  <div style="text-align:center;max-width:400px">
+    <div style="font-size:3rem;margin-bottom:1rem">👋</div>
+    <h2>Welcome to your workspace</h2>
+    <p class="muted">Your role-specific dashboard will appear here once your account is fully set up.</p>
+    <a class="btn btn-primary" href="{% url 'web:login' %}" style="margin-top:1rem">Return to login</a>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding:1.5rem">
-    <a href="#" class="btn btn-outline">Add Student</a>
-    <a href="#" class="btn btn-outline">Record Fee</a>
-    <a href="#" class="btn btn-outline">Take Attendance</a>
-    <a href="#" class="btn btn-outline">Schedule Class</a>
-    <a href="#" class="btn btn-outline">Post Content</a>
-    <a href="#" class="btn btn-outline">View Reports</a>
-  </div>
-</section>
-
+</div>
 {% endblock %}

@@ -1,0 +1,36 @@
+{% extends "web/base.html" %}
+{% block title %}Enrollments · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Enrollments</h1><p class="muted">Students enrolled across sections and academic years.</p></div>
+  <a class="btn btn-primary" href="{% url 'web:enrollment_create' %}">+ Enroll Student</a>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Section / Batch</th><th>Year</th><th>Roll No.</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td>
+            <div class="cell-user">
+              <div class="cell-avatar">{{ e.student.user.first_name|first|upper }}{{ e.student.user.last_name|first|upper }}</div>
+              <div>
+                <div class="cell-name">{{ e.student.user.get_full_name }}</div>
+                <div class="cell-sub">{{ e.student.admission_no|default:"" }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ e.section.name }} / {{ e.section.batch.program.name }}</td>
+          <td>{{ e.academic_year.name }}</td>
+          <td><code>{{ e.roll_no|default:"—" }}</code></td>
+          <td><span class="badge {% if e.status == 'enrolled' %}success{% elif e.status == 'passed' %}info{% else %}muted{% endif %}">{{ e.status|capfirst }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty-state">No enrollments yet. <a href="{% url 'web:enrollment_create' %}">Enroll a student</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

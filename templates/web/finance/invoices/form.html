@@ -1,0 +1,31 @@
+{% extends "web/base.html" %}
+{% block title %}Issue Invoice · Finance{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Issue Fee Invoice</h1></div>
+  <a class="btn btn-outline" href="{% url 'web:invoice_list' %}">&larr; Invoices</a>
+</div>
+<div style="max-width:540px">
+  <section class="card">
+    <div style="padding:24px">
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:16px">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+      {% endif %}
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.help_text %}<small class="muted" style="font-size:.75rem">{{ field.help_text }}</small>{% endif %}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:12px;margin-top:4px">
+          <button class="btn btn-primary" type="submit">Issue Invoice</button>
+          <a class="btn btn-outline" href="{% url 'web:invoice_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

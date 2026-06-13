@@ -1,0 +1,74 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}{{ notice.title }} · Notices{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ notice.title }}</h1>
+    <p class="muted">
+      {% if notice.status == 'published' %}<span class="badge success">Published</span>
+      {% elif notice.status == 'draft' %}<span class="badge muted">Draft</span>
+      {% elif notice.status == 'archived' %}<span class="badge muted">Archived</span>
+      {% endif %}
+      &nbsp;&middot;&nbsp;
+      Audience: {{ notice.audience_scope|capfirst }}
+      {% if notice.target_section %}&nbsp;— {{ notice.target_section.name }}{% endif %}
+      {% if notice.priority > 0 %}&nbsp;&middot;&nbsp;Priority {{ notice.priority }}{% endif %}
+    </p>
+  </div>
+  <div style="display:flex;gap:10px">
+    {% has_role 'college_admin' as is_admin %}
+    {% if is_admin or request.user.is_superuser %}
+      <form method="post" style="display:flex;gap:8px">
+        {% csrf_token %}
+        {% if notice.status != 'published' %}
+          <button class="btn btn-primary" name="action" value="publish" type="submit">Publish</button>
+        {% endif %}
+        {% if notice.status != 'archived' %}
+          <button class="btn btn-outline" name="action" value="archive" type="submit">Archive</button>
+        {% endif %}
+      </form>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'web:notice_list' %}">&larr; Notices</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 260px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Content</h2></div>
+    <div style="padding:20px 24px;font-size:.9rem;line-height:1.75;color:var(--text-2);white-space:pre-wrap">{{ notice.body }}</div>
+    {% if notice.file_asset and notice.file_asset.file %}
+    <div style="padding:0 24px 20px">
+      <div style="padding:14px;background:var(--surface-2);border-radius:var(--r-sm);display:flex;align-items:center;gap:12px">
+        <svg style="width:22px;height:22px;color:var(--brand);flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span style="font-size:.84rem;font-weight:600">{{ notice.file_asset.original_filename }}</span>
+        <a href="{{ notice.file_asset.file.url }}" class="btn btn-outline btn-sm" download style="margin-left:auto">Download</a>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Details</h2></div>
+    <div style="padding:16px 20px;display:grid;gap:10px">
+      <div class="detail-row"><span class="detail-label">Audience</span>{{ notice.audience_scope|capfirst }}</div>
+      {% if notice.target_section %}
+        <div class="detail-row"><span class="detail-label">Section</span>{{ notice.target_section.name }}</div>
+      {% endif %}
+      <div class="detail-row"><span class="detail-label">Priority</span>{{ notice.priority }}</div>
+      {% if notice.published_by %}
+        <div class="detail-row"><span class="detail-label">Posted by</span>{{ notice.published_by.get_full_name }}</div>
+      {% endif %}
+      {% if notice.publish_at %}
+        <div class="detail-row"><span class="detail-label">Publish at</span>{{ notice.publish_at|date:"N j, Y H:i" }}</div>
+      {% endif %}
+      {% if notice.expires_at %}
+        <div class="detail-row"><span class="detail-label">Expires</span>{{ notice.expires_at|date:"N j, Y H:i" }}</div>
+      {% endif %}
+      <div class="detail-row"><span class="detail-label">Created</span>{{ notice.created_at|date:"N j, Y" }}</div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

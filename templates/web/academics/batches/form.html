@@ -1,0 +1,30 @@
+{% extends "web/base.html" %}
+{% block title %}{{ page_title }} · Batches{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>{{ page_title }}</h1></div>
+  <a class="btn btn-outline" href="{% url 'web:batch_list' %}">&larr; Batches</a>
+</div>
+<div style="max-width:520px">
+  <section class="card">
+    <div style="padding:24px">
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:16px">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+      {% endif %}
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:12px;margin-top:4px">
+          <button class="btn btn-primary" type="submit">Save Batch</button>
+          <a class="btn btn-outline" href="{% url 'web:batch_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

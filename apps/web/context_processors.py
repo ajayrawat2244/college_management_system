@@ -1,31 +1,24 @@
 # apps/web/context_processors.py
 """
-Context processors injected into every template rendered by the web layer.
+Context processors injected into every template in the web layer.
 
-Registered in settings.py under TEMPLATES[0]['OPTIONS']['context_processors'].
+Registered in settings.py → TEMPLATES[0]['OPTIONS']['context_processors'].
 """
 from apps.platforms.services.subscription import SubscriptionService
-from apps.web.utils import get_user_primary_role_code
+from apps.web.utils import get_user_primary_role_code, trial_days_remaining
 
 
 def tenant(request):
-    """
-    Injects the resolved college tenant as ``college`` and ``tenant``
-    (both point to the same object; ``tenant`` is the legacy name used in
-    the existing sidebar/topbar partials).
-    """
+    """Inject resolved college as both ``college`` and ``tenant``."""
     college = getattr(request, "college", None)
     return {
         "college": college,
-        "tenant": college,          # alias — existing templates use {{ tenant.name }}
+        "tenant":  college,      # alias — some existing partials use {{ tenant.name }}
     }
 
 
 def user_role(request):
-    """
-    Injects the current user's primary role code as ``user_role_code`` so
-    templates can show/hide nav items without a DB query per template tag.
-    """
+    """Inject the user's primary role code as ``user_role_code``."""
     if not request.user.is_authenticated:
         return {"user_role_code": None}
     college = getattr(request, "college", None)
@@ -36,17 +29,27 @@ def user_role(request):
 
 def subscription(request):
     """
-    Injects basic subscription state so templates can gate feature links.
-
-    Keys injected:
-      ``subscription``         — CollegeSubscription object or None
+    Inject subscription state:
+      ``subscription``         — CollegeSubscription or None
       ``subscription_status``  — status string or None
+      ``trial_days``           — integer days remaining in trial, or None
+      ``entitlements``         — dict of feature_code → {is_enabled, limit_value}
     """
     college = getattr(request, "college", None)
     if not college:
-        return {"subscription": None, "subscription_status": None}
+        return {
+            "subscription": None,
+            "subscription_status": None,
+            "trial_days": None,
+            "entitlements": {},
+        }
+
     sub = SubscriptionService.get_active_subscription(college)
+    entitlements = SubscriptionService.get_entitlements(college) if sub else {}
+
     return {
         "subscription": sub,
         "subscription_status": sub.status if sub else None,
+        "trial_days": trial_days_remaining(sub),
+        "entitlements": entitlements,
     }

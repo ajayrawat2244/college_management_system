@@ -1,0 +1,50 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Exams · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Exams</h1><p class="muted">Manage examination schedules and results.</p></div>
+  {% has_role 'college_admin' as is_admin %}
+  {% if is_admin or request.user.is_superuser %}
+    <a class="btn btn-primary" href="{% url 'web:exam_create' %}">+ Create Exam</a>
+  {% endif %}
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Type</th><th>Section / Program</th><th>Term</th><th>Papers</th><th>Period</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for exam in exams %}
+        <tr>
+          <td><strong>{{ exam.name }}</strong></td>
+          <td><span class="chip">{{ exam.exam_type|capfirst }}</span></td>
+          <td>{{ exam.section.name }} / {{ exam.section.batch.program.name }}</td>
+          <td>{{ exam.term.name|default:"—" }}</td>
+          <td><span class="badge info">{{ exam.paper_count }}</span></td>
+          <td style="font-size:.8rem;color:var(--muted)">
+            {% if exam.start_date %}{{ exam.start_date|date:"M j" }}{% endif %}
+            {% if exam.end_date %} – {{ exam.end_date|date:"M j, Y" }}{% endif %}
+            {% if not exam.start_date and not exam.end_date %}—{% endif %}
+          </td>
+          <td>
+            {% if exam.status == 'draft' %}<span class="badge muted">Draft</span>
+            {% elif exam.status == 'scheduled' %}<span class="badge info">Scheduled</span>
+            {% elif exam.status == 'conducted' %}<span class="badge warning">Conducted</span>
+            {% elif exam.status == 'result_declared' %}<span class="badge success">Results Out</span>
+            {% else %}<span class="badge muted">{{ exam.status|capfirst }}</span>{% endif %}
+          </td>
+          <td style="text-align:right">
+            <a class="btn btn-outline btn-sm" href="{% url 'web:exam_detail' exam_id=exam.id %}">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state">No exams yet. <a href="{% url 'web:exam_create' %}">Create one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

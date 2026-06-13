@@ -5,22 +5,18 @@ from django import forms
 class WebLoginForm(forms.Form):
     email = forms.EmailField(
         label="Email address",
-        widget=forms.EmailInput(
-            attrs={
-                "placeholder": "admin@college.com",
-                "autocomplete": "email",
-                "autofocus": True,
-            }
-        ),
+        widget=forms.EmailInput(attrs={
+            "placeholder": "you@college.edu",
+            "autocomplete": "email",
+            "autofocus": True,
+        }),
     )
     password = forms.CharField(
         label="Password",
-        widget=forms.PasswordInput(
-            attrs={
-                "placeholder": "••••••••",
-                "autocomplete": "current-password",
-            }
-        ),
+        widget=forms.PasswordInput(attrs={
+            "placeholder": "••••••••",
+            "autocomplete": "current-password",
+        }),
     )
 
     def clean_email(self):
@@ -34,8 +30,8 @@ class WebChangePasswordForm(forms.Form):
     )
     new_password = forms.CharField(
         label="New password",
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
         min_length=8,
+        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
     )
     confirm_password = forms.CharField(
         label="Confirm new password",
@@ -47,5 +43,5 @@ class WebChangePasswordForm(forms.Form):
         p1 = cleaned.get("new_password")
         p2 = cleaned.get("confirm_password")
         if p1 and p2 and p1 != p2:
-            raise forms.ValidationError("New passwords do not match.")
+            raise forms.ValidationError("Passwords do not match.")
         return cleaned

@@ -4,13 +4,43 @@
 {% block title %}Platform Admin · SMS{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <div>
+    <h1>Platform Admin</h1>
+    <p class="muted">Manage all colleges registered on this platform.</p>
+  </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom:24px">
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div><span>Total Colleges</span><strong>{{ total_colleges }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ active_colleges }} active</div>
+  </article>
+
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner">
+      <div><span>Total Users</span><strong>{{ total_users }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">across all colleges</div>
+  </article>
+</div>
+
 <section class="card">
   <div class="card-head">
     <h2>All Colleges</h2>
-    <a class="btn btn-primary" href="#">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add College
-    </a>
   </div>
   <div class="table-wrap">
     <table>
@@ -21,11 +51,13 @@
           <th>Subdomain</th>
           <th>Status</th>
           <th>Plan</th>
+          <th>Users</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {% for college in colleges %}
+          {% with active_sub=college.active_subs.0 %}
           <tr>
             <td>
               <div class="cell-user">
@@ -37,23 +69,38 @@
               </div>
             </td>
             <td><code>{{ college.code }}</code></td>
-            <td>{{ college.subdomain|default:"—" }}</td>
             <td>
-              <span class="badge {% if college.status == 'active' %}success{% elif college.status == 'suspended' %}danger{% else %}muted{% endif %}">
-                {{ college.status|title }}
-              </span>
+              {% if college.subdomain %}
+                <code>{{ college.subdomain }}</code>
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
             </td>
             <td>
-              {% with sub=college.subscriptions.first %}
-                {{ sub.plan.name|default:"—" }}
-              {% endwith %}
+              <span class="badge {{ college.status|college_status_class }}">{{ college.status|capfirst }}</span>
             </td>
+            <td>
+              {% if active_sub %}
+                {{ active_sub.plan.name }}
+                <span class="badge {{ active_sub.status|sub_status_class }}" style="margin-left:4px">{{ active_sub.status|capfirst }}</span>
+              {% else %}
+                <span class="muted">No plan</span>
+              {% endif %}
+            </td>
+            <td>{{ college.user_count }}</td>
             <td style="text-align:right">
-              <a class="btn btn-outline btn-sm" href="#">Manage</a>
+              <a class="btn btn-outline btn-sm" href="{% url 'web:platform_college_detail' college_id=college.id %}">
+                Manage
+              </a>
             </td>
           </tr>
+          {% endwith %}
         {% empty %}
-          <tr><td colspan="6" class="empty-state">No colleges registered yet.</td></tr>
+          <tr>
+            <td colspan="7" class="empty-state">
+              No colleges registered yet. <a href="{% url 'web:register_step1' %}">Register the first one</a>.
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>

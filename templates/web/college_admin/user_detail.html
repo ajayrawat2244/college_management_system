@@ -1,0 +1,80 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}{{ viewed_user.get_full_name|default:viewed_user.email }} · Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ viewed_user.get_full_name|default:viewed_user.email }}</h1>
+    <p class="muted">{{ viewed_user.email }}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:user_list' %}">&larr; Back to Users</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:860px">
+
+  {# ── Profile card ────────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head"><h2>Profile</h2></div>
+    <div style="padding:20px 24px;display:grid;gap:14px">
+      <div class="detail-row">
+        <span class="detail-label">Full name</span>
+        <span>{{ viewed_user.get_full_name|default:"—" }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Email</span>
+        <span>{{ viewed_user.email }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Phone</span>
+        <span>{{ viewed_user.phone|default:"—" }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account status</span>
+        <span class="badge {{ viewed_user.status|user_status_class }}">{{ viewed_user.status|capfirst }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Joined</span>
+        <span>{{ viewed_user.date_joined|date:"N j, Y" }}</span>
+      </div>
+    </div>
+  </section>
+
+  {# ── Roles card ──────────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head"><h2>Roles</h2></div>
+    <div style="padding:20px 24px;display:grid;gap:10px">
+      {% for ur in roles %}
+        <div class="detail-row">
+          <span class="badge info">{{ ur.role.name }}</span>
+          <span class="muted" style="font-size:.8rem">{{ ur.status|capfirst }}{% if ur.is_primary %} · Primary{% endif %}</span>
+        </div>
+      {% empty %}
+        <p class="muted">No roles assigned.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{# ── Activate / Deactivate ───────────────────────────────── #}
+{% if viewed_user != request.user %}
+<section class="card" style="margin-top:24px;max-width:860px;border-color:var(--danger)">
+  <div class="card-head"><h2 style="color:var(--danger)">Account Actions</h2></div>
+  <div style="padding:20px 24px">
+    <form method="post">
+      {% csrf_token %}
+      {% if viewed_user.is_active %}
+        <p class="muted" style="margin-bottom:12px">Deactivating this user will prevent them from signing in.</p>
+        <button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger)" type="submit">
+          Deactivate Account
+        </button>
+      {% else %}
+        <p class="muted" style="margin-bottom:12px">Reactivating this user will allow them to sign in again.</p>
+        <button class="btn btn-primary" type="submit">Reactivate Account</button>
+      {% endif %}
+    </form>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

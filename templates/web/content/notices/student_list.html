@@ -1,0 +1,56 @@
+{% extends "web/base.html" %}
+{% block title %}Notice Board · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Notice Board</h1><p class="muted">Announcements from {{ college.name }}.</p></div>
+</div>
+
+{% if notices %}
+  <div style="display:grid;gap:16px">
+    {% for notice in notices %}
+    <article class="card" style="padding:20px 24px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+            {% if notice.priority >= 7 %}
+              <span class="badge danger">Urgent</span>
+            {% elif notice.priority >= 4 %}
+              <span class="badge warning">Important</span>
+            {% endif %}
+            <span class="chip">{{ notice.audience_scope|capfirst }}</span>
+            {% if notice.target_section %}
+              <span class="chip">{{ notice.target_section.name }}</span>
+            {% endif %}
+          </div>
+          <h3 style="font-size:1rem;font-weight:700;margin:0 0 8px;color:var(--text-1)">{{ notice.title }}</h3>
+          <p style="font-size:.875rem;color:var(--text-2);margin:0;line-height:1.6;white-space:pre-line">{{ notice.body|truncatechars:300 }}</p>
+          {% if notice.body|length > 300 %}
+            <a href="{% url 'web:notice_detail' notice_id=notice.id %}" style="font-size:.8rem;margin-top:8px;display:inline-block;color:var(--brand)">Read more &rarr;</a>
+          {% endif %}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="muted" style="font-size:.75rem">
+            {% if notice.publish_at %}{{ notice.publish_at|date:"N j, Y" }}{% else %}{{ notice.created_at|date:"N j, Y" }}{% endif %}
+          </div>
+          {% if notice.published_by %}
+            <div class="muted" style="font-size:.75rem;margin-top:2px">{{ notice.published_by.get_full_name }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% if notice.file_asset and notice.file_asset.file %}
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line-1)">
+          <a href="{{ notice.file_asset.file.url }}" class="btn btn-outline btn-sm" download>
+            <svg style="width:13px;height:13px;margin-right:5px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{ notice.file_asset.original_filename|truncatechars:40 }}
+          </a>
+        </div>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="padding:60px;text-align:center">
+    <p class="muted">No notices posted yet. Check back soon.</p>
+  </div>
+{% endif %}
+{% endblock %}

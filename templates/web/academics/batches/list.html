@@ -1,0 +1,32 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Batches · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Batches</h1><p class="muted">Groups of students enrolled in a program for a specific year.</p></div>
+  {% has_role 'college_admin' as is_admin %}
+  {% if is_admin or request.user.is_superuser %}
+    <a class="btn btn-primary" href="{% url 'web:batch_create' %}">+ Add Batch</a>
+  {% endif %}
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Batch</th><th>Program</th><th>Academic Year</th><th>Intake</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in batches %}
+        <tr>
+          <td><strong>{{ b.name }}</strong></td>
+          <td>{{ b.program.name }}</td>
+          <td>{{ b.academic_year.name }}</td>
+          <td>{{ b.intake_year|default:"—" }}</td>
+          <td><span class="badge {% if b.status == 'active' %}success{% else %}muted{% endif %}">{{ b.status|capfirst }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty-state">No batches yet. <a href="{% url 'web:batch_create' %}">Add one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

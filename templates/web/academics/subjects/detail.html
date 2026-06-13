@@ -1,0 +1,48 @@
+{% extends "web/base.html" %}
+{% block title %}{{ subject.name }} · Subjects{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ subject.name }}</h1>
+    <p class="muted"><code>{{ subject.code }}</code> &middot; {{ subject.credits }} credit{{ subject.credits|pluralize }} &middot; {{ subject.subject_type|capfirst }}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:subject_list' %}">&larr; Subjects</a>
+</div>
+
+<div style="display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start">
+  <section class="card">
+    <div class="card-head"><h2>Details</h2></div>
+    <div style="padding:18px 20px;display:grid;gap:12px">
+      <div class="detail-row"><span class="detail-label">Code</span><code>{{ subject.code }}</code></div>
+      <div class="detail-row"><span class="detail-label">Credits</span>{{ subject.credits }}</div>
+      <div class="detail-row"><span class="detail-label">Type</span>{{ subject.subject_type|capfirst }}</div>
+      <div class="detail-row"><span class="detail-label">Department</span>{{ subject.department.name|default:"—" }}</div>
+      <div class="detail-row"><span class="detail-label">Status</span><span class="badge {% if subject.status == 'active' %}success{% else %}muted{% endif %}">{{ subject.status|capfirst }}</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Offerings ({{ offerings|length }})</h2>
+      <a class="btn btn-outline btn-sm" href="{% url 'web:offering_create' %}">+ Add Offering</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>Term</th><th>Teacher</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for o in offerings %}
+          <tr>
+            <td>{{ o.section.name }} / {{ o.section.batch.name }}</td>
+            <td>{{ o.term.name|default:"—" }}</td>
+            <td>{% if o.teacher %}{{ o.teacher.user.get_full_name }}{% else %}<span class="muted">Unassigned</span>{% endif %}</td>
+            <td><span class="badge {% if o.status == 'active' %}success{% else %}muted{% endif %}">{{ o.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="empty-state">No offerings for this subject yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

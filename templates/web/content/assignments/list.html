@@ -1,0 +1,35 @@
+{% extends "web/base.html" %}
+{% block title %}Assignments · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Assignments</h1><p class="muted">Create, manage and grade student assignments.</p></div>
+  <a class="btn btn-primary" href="{% url 'web:assignment_create' %}">+ Create Assignment</a>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Subject / Section</th><th>Due</th><th>Marks</th><th>Submissions</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for a in assignments %}
+        <tr>
+          <td><strong>{{ a.title }}</strong></td>
+          <td>{{ a.subject_offering.subject.name }} / {{ a.subject_offering.section.name }}</td>
+          <td>{% if a.due_at %}<span style="font-size:.82rem">{{ a.due_at|date:"N j, Y H:i" }}</span>{% else %}<span class="muted">No deadline</span>{% endif %}</td>
+          <td>{{ a.max_marks }}</td>
+          <td><span class="badge info">{{ a.submission_count }}</span></td>
+          <td>
+            {% if a.status == 'published' %}<span class="badge success">Published</span>
+            {% elif a.status == 'draft' %}<span class="badge muted">Draft</span>
+            {% elif a.status == 'closed' %}<span class="badge muted">Closed</span>
+            {% else %}<span class="badge muted">{{ a.status|capfirst }}</span>{% endif %}
+          </td>
+          <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:assignment_detail' assignment_id=a.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No assignments yet. <a href="{% url 'web:assignment_create' %}">Create one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

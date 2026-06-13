@@ -1,0 +1,43 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Course Materials · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Course Materials</h1><p class="muted">Upload lectures, notes, videos and resources.</p></div>
+  {% if can_create %}
+    <a class="btn btn-primary" href="{% url 'web:material_create' %}">+ Upload Material</a>
+  {% endif %}
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Type</th><th>Subject</th><th>Visibility</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for m in materials %}
+        <tr>
+          <td>
+            <strong>{{ m.title }}</strong>
+            {% if m.external_url %}<a href="{{ m.external_url }}" target="_blank" rel="noopener" style="margin-left:6px;font-size:.75rem;color:var(--brand)">↗ Link</a>{% endif %}
+          </td>
+          <td><span class="chip">{{ m.material_type|capfirst }}</span></td>
+          <td>
+            {% if m.subject_offering %}{{ m.subject_offering.subject.name }}
+            {% elif m.subject %}{{ m.subject.name }}
+            {% else %}<span class="muted">General</span>{% endif %}
+          </td>
+          <td>{{ m.visibility|capfirst }}</td>
+          <td>
+            {% if m.status == 'published' %}<span class="badge success">Published</span>
+            {% elif m.status == 'draft' %}<span class="badge muted">Draft</span>
+            {% else %}<span class="badge muted">{{ m.status|capfirst }}</span>{% endif %}
+          </td>
+          <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:material_detail' material_id=m.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty-state">No materials yet. <a href="{% url 'web:material_create' %}">Upload one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

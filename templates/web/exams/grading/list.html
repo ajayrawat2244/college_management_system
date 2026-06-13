@@ -1,0 +1,52 @@
+{% extends "web/base.html" %}
+{% block title %}Grading Scale · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Grading Scale</h1><p class="muted">Define grade labels, percentage ranges and grade points.</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Grade Definitions ({{ scales|length }})</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Label</th><th>Range</th><th>Grade Point</th><th>Remarks</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for s in scales %}
+          <tr>
+            <td><strong style="font-size:1.1rem">{{ s.grade_label }}</strong></td>
+            <td>{{ s.min_percentage }}% – {{ s.max_percentage }}%</td>
+            <td>{{ s.grade_point|default:"—" }}</td>
+            <td>{{ s.remarks|default:"—" }}</td>
+            <td><span class="badge {% if s.status == 'active' %}success{% else %}muted{% endif %}">{{ s.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No grading scale defined yet. Add one using the form.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Add Grade</h2></div>
+    <div style="padding:20px 24px">
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:14px">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+      {% endif %}
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Add Grade</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

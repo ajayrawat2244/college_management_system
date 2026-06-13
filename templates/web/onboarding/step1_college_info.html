@@ -4,33 +4,33 @@
 <form method="post" class="form-grid" novalidate>
   {% csrf_token %}
 
-  <div class="form-section-label">Institution Details</div>
+  <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0">Institution Details</p>
 
-  {% for field_name in "college_name,college_code,official_email,official_phone,city,state,country"|split:"," %}
-    {% with field=form|getitem:field_name %}
-    <label class="field {% if field.errors %}field--error{% endif %}">
-      <span>{{ field.label }}{% if field.field.required %} <sup>*</sup>{% endif %}</span>
-      {{ field }}
-      {% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}
-      {% if field.errors %}<span class="field-error">{{ field.errors|first }}</span>{% endif %}
-    </label>
-    {% endwith %}
+  {% for field in form %}
+    {% if field.name in "college_name,college_code,official_email,official_phone,city,state,country" %}
+      <label class="field {% if field.errors %}field--error{% endif %}">
+        <span>{{ field.label }}{% if field.field.required %} <sup style="color:var(--danger)">*</sup>{% endif %}</span>
+        {{ field }}
+        {% if field.help_text %}<small style="color:var(--muted);font-size:.75rem">{{ field.help_text }}</small>{% endif %}
+        {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+      </label>
+    {% endif %}
   {% endfor %}
 
-  <div class="form-section-label" style="margin-top:1.5rem">Admin Account</div>
-  <p class="muted" style="margin:0 0 1rem">This becomes your College Admin login.</p>
+  <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:16px 0 0">Admin Account</p>
+  <p style="font-size:.82rem;color:var(--muted);margin:0">This email and password will be your College Admin login.</p>
 
-  {% for field_name in "admin_first_name,admin_last_name,admin_email,admin_password,admin_password_confirm"|split:"," %}
-    {% with field=form|getitem:field_name %}
-    <label class="field {% if field.errors %}field--error{% endif %}">
-      <span>{{ field.label }}{% if field.field.required %} <sup>*</sup>{% endif %}</span>
-      {{ field }}
-      {% if field.errors %}<span class="field-error">{{ field.errors|first }}</span>{% endif %}
-    </label>
-    {% endwith %}
+  {% for field in form %}
+    {% if field.name in "admin_first_name,admin_last_name,admin_email,admin_password,admin_password_confirm" %}
+      <label class="field {% if field.errors %}field--error{% endif %}">
+        <span>{{ field.label }}{% if field.field.required %} <sup style="color:var(--danger)">*</sup>{% endif %}</span>
+        {{ field }}
+        {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+      </label>
+    {% endif %}
   {% endfor %}
 
-  <button class="btn btn-primary btn-full" type="submit" style="margin-top:1rem">
+  <button class="btn btn-primary btn-full" type="submit" style="margin-top:8px">
     Continue to Plan Selection &rarr;
   </button>
 </form>

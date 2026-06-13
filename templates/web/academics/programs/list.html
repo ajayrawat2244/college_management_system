@@ -1,0 +1,37 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Programs · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Programs</h1><p class="muted">Degree and diploma programs offered by {{ college.name }}.</p></div>
+  {% has_role 'college_admin' as is_admin %}
+  {% if is_admin or request.user.is_superuser %}
+    <a class="btn btn-primary" href="{% url 'web:program_create' %}">+ Add Program</a>
+  {% endif %}
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Code</th><th>Name</th><th>Level</th><th>Department</th><th>Duration</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for p in programs %}
+        <tr>
+          <td><code>{{ p.code }}</code></td>
+          <td><strong>{{ p.name }}</strong></td>
+          <td><span class="chip">{{ p.level|capfirst }}</span></td>
+          <td>{{ p.department.name|default:"—" }}</td>
+          <td>{% if p.duration_terms %}{{ p.duration_terms }} term{{ p.duration_terms|pluralize }}{% else %}—{% endif %}</td>
+          <td><span class="badge {% if p.status == 'active' %}success{% else %}muted{% endif %}">{{ p.status|capfirst }}</span></td>
+          <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:program_detail' program_id=p.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No programs yet. <a href="{% url 'web:program_create' %}">Add the first one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

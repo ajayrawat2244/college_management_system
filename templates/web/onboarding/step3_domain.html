@@ -1,37 +1,44 @@
 {% extends "web/onboarding/base_wizard.html" %}
 
 {% block wizard_form %}
-<div class="summary-card" style="margin-bottom:1.5rem;padding:1rem 1.25rem;background:var(--surface-2,#f5f7fa);border-radius:var(--radius-md,8px)">
-  <p style="margin:0;font-size:.875rem">
-    <strong>{{ college_name }}</strong> &middot;
-    {{ plan_name }} &middot;
-    {{ billing_cycle|title }}
-  </p>
+{# ── Summary of previous steps ───────────────────────── #}
+<div style="background:var(--card-raised);border:1.5px solid var(--line-2);border-radius:var(--r-sm);padding:14px 18px;margin-bottom:24px;font-size:.84rem">
+  <strong>{{ college_name }}</strong>
+  &nbsp;·&nbsp;
+  {{ plan_name }}
+  &nbsp;·&nbsp;
+  {{ billing_cycle|capfirst }}
 </div>
 
 <form method="post" class="form-grid" novalidate>
   {% csrf_token %}
 
   <label class="field {% if form.subdomain.errors %}field--error{% endif %}">
-    <span>{{ form.subdomain.label }} <sup>*</sup></span>
-    <div class="input-addon-wrap">
+    <span>{{ form.subdomain.label }} <sup style="color:var(--danger)">*</sup></span>
+
+    <div style="display:flex;align-items:stretch;border:1.5px solid var(--line-2);border-radius:var(--r-sm);overflow:hidden;background:var(--surface-1)">
       {{ form.subdomain }}
-      <span class="input-addon-suffix">.cms.yourdomain.com</span>
+      <span style="
+        padding:0 14px;background:var(--surface-2);border-left:1.5px solid var(--line-2);
+        font-size:.8rem;color:var(--muted);display:flex;align-items:center;
+        white-space:nowrap;font-family:var(--font-mono,'monospace')
+      ">.cms.yourdomain.com</span>
     </div>
+
     {% if form.subdomain.help_text %}
-      <small class="field-help">{{ form.subdomain.help_text }}</small>
+      <small style="color:var(--muted);font-size:.75rem">{{ form.subdomain.help_text }}</small>
     {% endif %}
     {% if form.subdomain.errors %}
-      <span class="field-error">{{ form.subdomain.errors|first }}</span>
+      <span style="color:var(--danger);font-size:.78rem">{{ form.subdomain.errors|first }}</span>
     {% endif %}
   </label>
 
-  <div class="notice notice--info" style="margin-top:.5rem">
-    <strong>This cannot be changed later</strong> without contacting support.
-    Choose a short, permanent slug for your institution.
+  <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--r-sm);padding:12px 16px;font-size:.82rem;color:var(--text-2)">
+    <strong>Note:</strong> Your subdomain cannot be changed after registration without contacting support.
+    Choose a short, permanent identifier for your institution.
   </div>
 
-  <div style="display:flex;gap:1rem;margin-top:1.5rem">
+  <div style="display:flex;gap:12px;margin-top:8px">
     <a class="btn btn-outline" href="{% url 'web:register_step2' %}">&larr; Back</a>
     <button class="btn btn-primary" type="submit">Complete Registration ✓</button>
   </div>

@@ -1,0 +1,71 @@
+{% extends "web/base.html" %}
+{% block title %}Results · {{ paper.subject_offering.subject.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ paper.subject_offering.subject.name }} Results</h1>
+    <p class="muted">{{ paper.exam.name }} &middot; Max: {{ paper.max_marks }}{% if paper.pass_marks %} · Pass: {{ paper.pass_marks }}{% endif %}</p>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a class="btn btn-outline btn-sm" href="{% url 'web:exam_result_entry' paper_id=paper.id %}">Edit Marks</a>
+    <a class="btn btn-outline" href="{% url 'web:exam_detail' exam_id=paper.exam_id %}">&larr; Back to Exam</a>
+  </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom:24px">
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner"><div><span>Students</span><strong>{{ total }}</strong></div></div>
+    <div class="stat-sub">results entered</div>
+  </article>
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner"><div><span>Average</span><strong>{{ avg_marks }}</strong></div></div>
+    <div class="stat-sub">out of {{ paper.max_marks }}</div>
+  </article>
+  {% if paper.pass_marks %}
+  <article class="stat-card stat-card--dark">
+    <div class="stat-inner"><div><span>Passed</span><strong>{{ pass_count }}</strong></div></div>
+    <div class="stat-sub">{{ fail_count }} failed</div>
+  </article>
+  {% endif %}
+</div>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Student</th><th>Marks</th><th>%</th><th>Grade</th><th>GPA</th><th>Status</th><th>Remarks</th></tr></thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>
+            <div class="cell-user">
+              <div class="cell-avatar">{{ r.student.user.first_name|first|upper }}{{ r.student.user.last_name|first|upper }}</div>
+              <span class="cell-name">{{ r.student.user.get_full_name }}</span>
+            </div>
+          </td>
+          <td>
+            {% if r.marks_obtained is not None %}
+              <strong>{{ r.marks_obtained }}</strong> / {{ paper.max_marks }}
+            {% else %}<span class="muted">—</span>{% endif %}
+          </td>
+          <td>
+            {% if r.marks_obtained is not None %}
+              {{ r.marks_obtained|floatformat:0 }} / {{ paper.max_marks|floatformat:0 }}
+            {% endif %}
+          </td>
+          <td>{% if r.grade_label %}<span class="badge info">{{ r.grade_label }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{{ r.grade_point|default:"—" }}</td>
+          <td>
+            {% if r.status == 'published' %}<span class="badge success">Published</span>
+            {% elif r.status == 'finalized' %}<span class="badge info">Finalized</span>
+            {% else %}<span class="badge muted">Draft</span>{% endif %}
+          </td>
+          <td>{{ r.remarks|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No results entered yet. <a href="{% url 'web:exam_result_entry' paper_id=paper.id %}">Enter marks</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

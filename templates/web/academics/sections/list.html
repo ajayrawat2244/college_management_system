@@ -1,0 +1,34 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Sections · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Sections</h1><p class="muted">Class divisions within a batch (e.g. A, B, Morning, Evening).</p></div>
+  {% has_role 'college_admin' as is_admin %}
+  {% if is_admin or request.user.is_superuser %}
+    <a class="btn btn-primary" href="{% url 'web:section_create' %}">+ Add Section</a>
+  {% endif %}
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Section</th><th>Batch</th><th>Program</th><th>Room</th><th>Capacity</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for s in sections %}
+        <tr>
+          <td><strong>{{ s.name }}</strong></td>
+          <td>{{ s.batch.name }}</td>
+          <td>{{ s.batch.program.name }}</td>
+          <td>{{ s.room|default:"—" }}</td>
+          <td>{{ s.capacity|default:"—" }}</td>
+          <td><span class="badge {% if s.status == 'active' %}success{% else %}muted{% endif %}">{{ s.status|capfirst }}</span></td>
+          <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:section_detail' section_id=s.id %}">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No sections yet. <a href="{% url 'web:section_create' %}">Add one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "web/base.html" %}
+{% block title %}Study Materials · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Study Materials</h1><p class="muted">Resources shared by your teachers.</p></div>
+</div>
+{% if materials %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+    {% for m in materials %}
+    <article class="card" style="display:flex;flex-direction:column">
+      <div style="padding:18px 20px 0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+          <span class="chip">{{ m.material_type|capfirst }}</span>
+          <span class="muted" style="font-size:.75rem">{{ m.published_at|date:"N j" }}</span>
+        </div>
+        <h3 style="font-size:.96rem;font-weight:700;margin:0 0 6px;color:var(--text-1)">{{ m.title }}</h3>
+        {% if m.subject_offering %}
+          <p class="muted" style="font-size:.8rem;margin:0">{{ m.subject_offering.subject.name }}</p>
+        {% endif %}
+        {% if m.description %}
+          <p style="font-size:.82rem;color:var(--text-2);margin:8px 0 0;line-height:1.5">{{ m.description|truncatechars:100 }}</p>
+        {% endif %}
+      </div>
+      <div style="padding:14px 20px;margin-top:auto;display:flex;gap:8px">
+        {% if m.external_url %}
+          <a href="{{ m.external_url }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Open ↗</a>
+        {% endif %}
+        {% if m.file_asset and m.file_asset.file %}
+          <a href="{{ m.file_asset.file.url }}" class="btn btn-outline btn-sm" download>Download</a>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="padding:60px;text-align:center">
+    <p class="muted">No materials have been shared yet. Check back soon.</p>
+  </div>
+{% endif %}
+{% endblock %}

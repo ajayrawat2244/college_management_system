@@ -1,0 +1,117 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}Subscription · {{ college.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Subscription</h1>
+    <p class="muted">Manage your plan, billing and feature access.</p>
+  </div>
+</div>
+
+{# ── Current plan summary ────────────────────────────────── #}
+{% if subscription %}
+  <div class="stats-grid" style="margin-bottom:24px">
+    <article class="stat-card {% if subscription.status == 'active' %}stat-card--teal{% elif subscription.status == 'trial' %}stat-card--indigo{% else %}stat-card--dark{% endif %}">
+      <div class="stat-inner">
+        <div>
+          <span>Current Plan</span>
+          <strong>{{ subscription.plan.name }}</strong>
+        </div>
+        <span class="badge {{ subscription.status|sub_status_class }}">{{ subscription.status|capfirst }}</span>
+      </div>
+      <div class="stat-sub">
+        {% if subscription.status == 'trial' %}
+          Trial ends {{ subscription.trial_ends_at|date:"N j, Y" }}
+          {% if trial_days is not None %}· {{ trial_days }} day{{ trial_days|pluralize }} left{% endif %}
+        {% elif subscription.status == 'active' %}
+          Renews {{ subscription.current_period_end|date:"N j, Y" }}
+        {% elif subscription.status == 'past_due' %}
+          Payment overdue — please update billing
+        {% endif %}
+      </div>
+    </article>
+
+    <article class="stat-card stat-card--lavender">
+      <div class="stat-inner">
+        <div>
+          <span>Billing Cycle</span>
+          <strong>{{ subscription.billing_cycle|capfirst }}</strong>
+        </div>
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+      </div>
+      <div class="stat-sub">
+        ₹{{ subscription.plan.price_monthly }}/mo · ₹{{ subscription.plan.price_yearly }}/yr
+      </div>
+    </article>
+  </div>
+
+  {# ── Feature entitlements ─────────────────────────────── #}
+  {% if entitlements %}
+    <section class="card" style="margin-bottom:24px">
+      <div class="card-head"><h2>Features Included</h2></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0">
+        {% for code, details in entitlements.items %}
+          <div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line-1)">
+            {% if details.is_enabled %}
+              <svg style="width:16px;height:16px;flex-shrink:0;color:#22c55e" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            {% else %}
+              <svg style="width:16px;height:16px;flex-shrink:0;color:var(--muted)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            {% endif %}
+            <div>
+              <div style="font-size:.84rem;font-weight:500;{% if not details.is_enabled %}color:var(--muted){% endif %}">
+                {{ details.feature_name|default:code }}
+              </div>
+              {% if details.limit_value %}
+                <div style="font-size:.75rem;color:var(--muted)">Limit: {{ details.limit_value }}</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+{% else %}
+  <div class="alert alert-warning" style="margin-bottom:24px">
+    No active subscription found for this college. Please contact platform support.
+  </div>
+{% endif %}
+
+{# ── Subscription history ────────────────────────────────── #}
+<section class="card">
+  <div class="card-head"><h2>Subscription History</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Status</th>
+          <th>Cycle</th>
+          <th>Period</th>
+          <th>Started</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in all_subs %}
+          <tr>
+            <td><strong>{{ sub.plan.name }}</strong></td>
+            <td><span class="badge {{ sub.status|sub_status_class }}">{{ sub.status|capfirst }}</span></td>
+            <td>{{ sub.billing_cycle|capfirst }}</td>
+            <td>{{ sub.current_period_start|date:"M j, Y" }} – {{ sub.current_period_end|date:"M j, Y" }}</td>
+            <td>{{ sub.created_at|date:"M j, Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty-state">No subscription history.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

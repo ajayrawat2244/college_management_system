@@ -1,0 +1,19 @@
+{% extends "web/base.html" %}
+{% block title %}Feature Not Available · {{ college.name }}{% endblock %}
+
+{% block content %}
+<div style="display:grid;place-items:center;min-height:400px">
+  <div style="text-align:center;max-width:480px;padding:2rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔒</div>
+    <h1>Feature not available</h1>
+    <p class="muted" style="margin-bottom:1.5rem">
+      This feature is not included in your current subscription plan.
+      Upgrade to access it.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <a class="btn btn-outline" href="javascript:history.back()">Go back</a>
+      <a class="btn btn-primary" href="{% url 'web:subscription_status' %}">View plans &rarr;</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

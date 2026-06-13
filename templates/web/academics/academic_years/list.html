@@ -1,0 +1,54 @@
+{% extends "web/base.html" %}
+{% block title %}Academic Years · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Academic Years &amp; Terms</h1><p class="muted">Manage the college calendar.</p></div>
+  <a class="btn btn-primary" href="{% url 'web:term_create' %}">+ Add Term</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Years &amp; Terms</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Year</th><th>Terms</th><th>Period</th><th>Current</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for year in years %}
+          <tr>
+            <td><strong>{{ year.name }}</strong></td>
+            <td>
+              {% for term in year.terms.all %}
+                <span class="chip" style="margin-right:4px">{{ term.name }}{% if term.is_current %} ★{% endif %}</span>
+              {% empty %}<span class="muted">No terms</span>{% endfor %}
+            </td>
+            <td style="font-size:.82rem;color:var(--muted)">{{ year.start_date|date:"M j, Y" }} – {{ year.end_date|date:"M j, Y" }}</td>
+            <td>{% if year.is_current %}<span class="badge success">Yes</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+            <td><span class="badge {% if year.status == 'active' %}success{% else %}muted{% endif %}">{{ year.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No academic years yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Add Academic Year</h2></div>
+    <div style="padding:20px 24px">
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Create Year</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

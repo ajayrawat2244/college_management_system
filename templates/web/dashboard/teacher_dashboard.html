@@ -1,0 +1,83 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}Teacher Dashboard · {{ college.name }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1>My Dashboard</h1>
+    <p class="muted">
+      Welcome back, {{ request.user.first_name }}.
+      {% if current_term %} Current term: <strong>{{ current_term.name }}</strong>{% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div>
+        <span>My Students</span>
+        <strong>{{ my_student_count }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">across all my classes</div>
+  </article>
+
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner">
+      <div>
+        <span>Active Classes</span>
+        <strong>{{ my_offerings|length }}</strong>
+      </div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{% if current_term %}this term{% else %}no active term{% endif %}</div>
+  </article>
+</div>
+
+<section class="card" style="margin-top:24px">
+  <div class="card-head">
+    <h2>My Classes {% if current_term %}— {{ current_term.name }}{% endif %}</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Section / Batch</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for offering in my_offerings %}
+          <tr>
+            <td><strong>{{ offering.subject.name }}</strong></td>
+            <td>{{ offering.section.name }} &middot; {{ offering.section.batch.name }}</td>
+            <td><span class="badge success">{{ offering.status|capfirst }}</span></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" class="empty-state">
+              {% if current_term %}No classes assigned for this term.{% else %}No active term configured.{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

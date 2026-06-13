@@ -1,0 +1,53 @@
+{% extends "web/base.html" %}
+{% block title %}Fee Heads · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Fee Heads</h1><p class="muted">Define fee categories (tuition, exam, library, etc.).</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>All Fee Heads ({{ fee_heads|length }})</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Default Amount</th><th>Optional</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for fh in fee_heads %}
+          <tr>
+            <td><code>{{ fh.code }}</code></td>
+            <td><strong>{{ fh.name }}</strong></td>
+            <td><span class="chip">{{ fh.category|capfirst }}</span></td>
+            <td>{{ fh.default_amount|floatformat:2 }}</td>
+            <td>{% if fh.is_optional %}<span class="badge info">Yes</span>{% else %}—{% endif %}</td>
+            <td><span class="badge {% if fh.status == 'active' %}success{% else %}muted{% endif %}">{{ fh.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="empty-state">No fee heads yet. Add one using the form.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Add Fee Head</h2></div>
+    <div style="padding:20px 24px">
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:14px">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+      {% endif %}
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Create Fee Head</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

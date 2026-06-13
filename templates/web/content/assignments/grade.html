@@ -1,0 +1,62 @@
+{% extends "web/base.html" %}
+{% block title %}Grade Submission · {{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Grade Submission</h1>
+    <p class="muted">{{ assignment.title }} &middot; {{ submission.student.user.get_full_name }}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:assignment_detail' assignment_id=assignment.id %}">&larr; Back</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Student Submission</h2></div>
+    <div style="padding:20px 24px">
+      {% if submission.submitted_at %}
+        <p class="muted" style="font-size:.8rem;margin-bottom:14px">
+          Submitted {{ submission.submitted_at|date:"N j, Y H:i" }}
+          {% if submission.status == 'late' %}<span class="badge warning" style="margin-left:6px">Late</span>{% endif %}
+        </p>
+      {% endif %}
+      {% if submission.submission_text %}
+        <div style="background:var(--surface-2);padding:16px;border-radius:var(--r-sm);font-size:.875rem;line-height:1.6;white-space:pre-wrap">{{ submission.submission_text }}</div>
+      {% endif %}
+      {% if submission.file_asset and submission.file_asset.file %}
+        <div style="margin-top:14px;padding:14px;background:var(--surface-2);border-radius:var(--r-sm);display:flex;align-items:center;gap:12px">
+          <svg style="width:22px;height:22px;color:var(--brand)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span style="font-size:.84rem;font-weight:600">{{ submission.file_asset.original_filename }}</span>
+          <a href="{{ submission.file_asset.file.url }}" class="btn btn-outline btn-sm" download style="margin-left:auto">Download</a>
+        </div>
+      {% endif %}
+      {% if not submission.submission_text and not submission.file_asset %}
+        <p class="muted">No content submitted.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Grade</h2></div>
+    <div style="padding:20px 24px">
+      <div class="detail-row" style="margin-bottom:14px"><span class="detail-label">Max marks</span>{{ assignment.max_marks }}</div>
+      {% if submission.marks_obtained is not None %}
+        <div class="detail-row" style="margin-bottom:14px"><span class="detail-label">Current</span>{{ submission.marks_obtained }}</div>
+      {% endif %}
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-primary" type="submit">Save Grade</button>
+          <a class="btn btn-outline" href="{% url 'web:assignment_detail' assignment_id=assignment.id %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

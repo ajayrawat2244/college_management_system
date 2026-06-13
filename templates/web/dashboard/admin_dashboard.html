@@ -1,0 +1,148 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Dashboard · {{ college.name }}{% endblock %}
+{% block content %}
+
+{# ── 4-card KPI row ──────────────────────────────────────── #}
+<div class="stats-grid">
+
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div><span>Students</span><strong>{{ total_students }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ active_students }} active &nbsp;·&nbsp; {{ total_teachers }} teacher{{ total_teachers|pluralize }}</div>
+  </article>
+
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner">
+      <div><span>Fee Collected</span><strong style="font-size:1.55rem">₹{{ total_fee_collected|floatformat:0 }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ pending_fees }} invoice{{ pending_fees|pluralize }} pending</div>
+  </article>
+
+  <article class="stat-card stat-card--dark">
+    <div class="stat-inner">
+      <div><span>Batches</span><strong>{{ total_batches }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ total_programs }} program{{ total_programs|pluralize }}</div>
+  </article>
+
+  <article class="stat-card stat-card--lavender">
+    <div class="stat-inner">
+      <div><span>Exams</span><strong>{{ total_exams }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="2"/>
+          <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-sub">{{ exams_with_results_declared }} result{{ exams_with_results_declared|pluralize }} declared</div>
+  </article>
+
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px">
+
+  {# ── Recent students ─────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head">
+      <h2>Recent Students</h2>
+      <a class="btn btn-outline btn-sm" href="{% url 'web:enrollment_list' %}">View all</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Admission No.</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for sp in recent_students %}
+          <tr>
+            <td>
+              <div class="cell-user">
+<!--                <div class="cell-avatar">{{ sp.user.first_name|first|upper }}{{ sp.user.last_name|first|upper }}</div>
+              -->              
+                    <div class="cell-avatar">
+                        {% if sp.photo_file_asset %}
+                            <img src="/media/user_image/{{ sp.admission_no }}.png"
+                                
+                                class="avatar-img">
+                        {% else %}
+                            {{ sp.user.first_name|first|upper }}{{ sp.user.last_name|first|upper }}
+                        {% endif %}
+                    </div>
+                  <div>
+                  <div class="cell-name">{{ sp.user.first_name }} {{ sp.user.last_name }}</div>
+                  <div class="cell-sub">{{ sp.user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td><code>{{ sp.admission_no|default:"—" }}</code></td>
+            <td><span class="badge {{ sp.status|user_status_class }}">{{ sp.status|capfirst }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" class="empty-state">No students yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# ── Quick actions ───────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head"><h2>Quick Actions</h2></div>
+    <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <a href="{% url 'web:invite_user' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add User
+      </a>
+      <a href="{% url 'web:enrollment_create' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Enroll Student
+      </a>
+      <a href="{% url 'web:attendance_session_create' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Take Attendance
+      </a>
+      <a href="{% url 'web:invoice_create' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Issue Invoice
+      </a>
+      <a href="{% url 'web:exam_create' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+        Create Exam
+      </a>
+      <a href="{% url 'web:notice_create' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Post Notice
+      </a>
+      <a href="{% url 'web:college_settings' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9 1.65 1.65 0 0 0 4.27 7.18l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a href="{% url 'web:audit_log' %}" class="quick-action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Audit Log
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

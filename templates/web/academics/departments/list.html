@@ -1,0 +1,48 @@
+{% extends "web/base.html" %}
+{% block title %}Departments · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Departments</h1><p class="muted">Organise subjects and staff by department.</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>All Departments ({{ departments|length }})</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for dept in departments %}
+          <tr>
+            <td><code>{{ dept.code }}</code></td>
+            <td>{{ dept.name }}</td>
+            <td><span class="badge {% if dept.status == 'active' %}success{% else %}muted{% endif %}">{{ dept.status|capfirst }}</span></td>
+            <td style="text-align:right"><a class="btn btn-outline btn-sm" href="{% url 'web:department_edit' dept_id=dept.id %}">Edit</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="empty-state">No departments yet. Add one using the form.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Add Department</h2></div>
+    <div style="padding:20px 24px">
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Create Department</button>
+      </form>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

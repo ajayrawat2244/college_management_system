@@ -1,0 +1,91 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}{{ exam.name }} · Exams{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ exam.name }}</h1>
+    <p class="muted">
+      <span class="chip">{{ exam.exam_type|capfirst }}</span>
+      &nbsp;{{ exam.section.name }} / {{ exam.section.batch.program.name }}
+      {% if exam.term %}&nbsp;· {{ exam.term.name }}{% endif %}
+    </p>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    {% if is_admin %}
+      <a class="btn btn-primary" href="{% url 'web:exam_paper_create' exam_id=exam.id %}">+ Add Paper</a>
+      <form method="post" style="display:flex;gap:8px">
+        {% csrf_token %}
+        {% if exam.status == 'draft' %}
+          <button class="btn btn-outline" name="action" value="schedule" type="submit">Schedule</button>
+        {% elif exam.status == 'scheduled' %}
+          <button class="btn btn-outline" name="action" value="conduct" type="submit">Mark Conducted</button>
+        {% elif exam.status == 'conducted' %}
+          <button class="btn btn-primary" name="action" value="declare" type="submit">Declare Results</button>
+        {% endif %}
+      </form>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'web:exam_list' %}">&larr; Exams</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 240px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Exam Papers ({{ papers|length }})</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Subject</th><th>Date</th><th>Time</th><th>Max / Pass</th><th>Room</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for paper in papers %}
+          <tr>
+            <td><strong>{{ paper.subject_offering.subject.name }}</strong><br>
+              <small class="muted">{{ paper.subject_offering.subject.code }}</small></td>
+            <td>{{ paper.exam_date|date:"M j, Y"|default:"TBD" }}</td>
+            <td style="font-size:.8rem;color:var(--muted)">
+              {% if paper.start_time %}{{ paper.start_time|time:"H:i" }} – {{ paper.end_time|time:"H:i" }}{% else %}—{% endif %}
+            </td>
+            <td>{{ paper.max_marks }} / {{ paper.pass_marks|default:"—" }}</td>
+            <td>{{ paper.room|default:"—" }}</td>
+            <td>
+              {% if paper.status == 'scheduled' %}<span class="badge info">Scheduled</span>
+              {% elif paper.status == 'held' %}<span class="badge success">Held</span>
+              {% elif paper.status == 'cancelled' %}<span class="badge danger">Cancelled</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;white-space:nowrap">
+              <a class="btn btn-outline btn-sm" href="{% url 'web:exam_result_entry' paper_id=paper.id %}">Enter Marks</a>
+              <a class="btn btn-outline btn-sm" href="{% url 'web:exam_result_detail' paper_id=paper.id %}" style="margin-left:4px">Results</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="empty-state">No papers added yet.
+            {% if is_admin %}<a href="{% url 'web:exam_paper_create' exam_id=exam.id %}">Add one</a>.{% endif %}
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Details</h2></div>
+    <div style="padding:16px 20px;display:grid;gap:10px">
+      <div class="detail-row"><span class="detail-label">Section</span>{{ exam.section.name }}</div>
+      <div class="detail-row"><span class="detail-label">Program</span>{{ exam.section.batch.program.name }}</div>
+      <div class="detail-row"><span class="detail-label">Year</span>{{ exam.academic_year.name }}</div>
+      <div class="detail-row"><span class="detail-label">Term</span>{{ exam.term.name|default:"—" }}</div>
+      <div class="detail-row"><span class="detail-label">Status</span>
+        {% if exam.status == 'draft' %}<span class="badge muted">Draft</span>
+        {% elif exam.status == 'scheduled' %}<span class="badge info">Scheduled</span>
+        {% elif exam.status == 'conducted' %}<span class="badge warning">Conducted</span>
+        {% elif exam.status == 'result_declared' %}<span class="badge success">Results Declared</span>
+        {% else %}<span class="badge muted">{{ exam.status|capfirst }}</span>{% endif %}
+      </div>
+      {% if exam.start_date %}<div class="detail-row"><span class="detail-label">Period</span>{{ exam.start_date|date:"M j" }} – {{ exam.end_date|date:"M j, Y" }}</div>{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

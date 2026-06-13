@@ -17,9 +17,9 @@ class MaterialType(models.TextChoices):
     NOTE = "note", "Note"
     PDF = "pdf", "PDF"
     LINK = "link", "Link"
-    VIDEO = "video", "Video"
-    AUDIO = "audio", "Audio"
-    IMAGE = "image", "Image"
+    #VIDEO = "video", "Video"
+    #AUDIO = "audio", "Audio"
+    #IMAGE = "image", "Image"
     OTHER = "other", "Other"
 
 

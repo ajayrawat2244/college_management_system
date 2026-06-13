@@ -1,0 +1,73 @@
+{% extends "web/base.html" %}
+{% block title %}Submit Assignment · {{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Submit Assignment</h1>
+    <p class="muted">{{ assignment.title }} &middot; {{ assignment.subject_offering.subject.name }}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:student_assignment_list' %}">&larr; Assignments</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head"><h2>Your Submission</h2></div>
+    <div style="padding:20px 24px">
+      {% if existing %}
+        <div class="alert alert-info" style="margin-bottom:16px">
+          You submitted this assignment on <strong>{{ existing.submitted_at|date:"N j, Y H:i" }}</strong>.
+          {% if assignment.status == 'published' %}You can re-submit to replace it.{% endif %}
+        </div>
+      {% endif %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:16px">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        {% if assignment.status == 'published' %}
+          <button class="btn btn-primary" type="submit">
+            {% if existing %}Re-submit{% else %}Submit Assignment{% endif %}
+          </button>
+        {% else %}
+          <p class="muted">This assignment is closed for submissions.</p>
+        {% endif %}
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Assignment Info</h2></div>
+    <div style="padding:16px 20px;display:grid;gap:10px">
+      <div class="detail-row"><span class="detail-label">Subject</span>{{ assignment.subject_offering.subject.name }}</div>
+      <div class="detail-row"><span class="detail-label">Max marks</span>{{ assignment.max_marks }}</div>
+      <div class="detail-row"><span class="detail-label">Due</span>
+        {% if assignment.due_at %}{{ assignment.due_at|date:"N j, Y H:i" }}{% else %}No deadline{% endif %}
+      </div>
+      <div class="detail-row"><span class="detail-label">Status</span>
+        {% if assignment.status == 'published' %}<span class="badge success">Open</span>
+        {% else %}<span class="badge muted">Closed</span>{% endif %}
+      </div>
+    </div>
+    {% if assignment.description %}
+    <div style="padding:0 20px 16px;font-size:.84rem;color:var(--text-2);line-height:1.6;border-top:1px solid var(--line-1);padding-top:14px">
+      {{ assignment.description }}
+    </div>
+    {% endif %}
+    {% if assignment.attachment_file_asset and assignment.attachment_file_asset.file %}
+    <div style="padding:0 20px 16px">
+      <a href="{{ assignment.attachment_file_asset.file.url }}" class="btn btn-outline btn-sm" download>
+        Download Question Paper
+      </a>
+    </div>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

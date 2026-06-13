@@ -152,8 +152,12 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
             models.Index(fields=["status"], name="idx_users_status"),
         ]
 
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+    
     def __str__(self):
         return self.email
+
 
 
 class UserRole(TimeStampedModel):

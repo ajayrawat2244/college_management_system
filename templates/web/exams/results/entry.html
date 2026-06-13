@@ -1,0 +1,89 @@
+{% extends "web/base.html" %}
+{% block title %}Enter Marks · {{ paper.subject_offering.subject.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Enter Marks</h1>
+    <p class="muted">
+      {{ paper.subject_offering.subject.name }} &middot;
+      {{ paper.exam.name }} &middot;
+      Max: {{ paper.max_marks }}{% if paper.pass_marks %} / Pass: {{ paper.pass_marks }}{% endif %}
+    </p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:exam_detail' exam_id=paper.exam_id %}">&larr; Back to Exam</a>
+</div>
+
+{% if grading_scales %}
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+    {% for scale in grading_scales %}
+      <span class="chip" style="font-size:.72rem">
+        <strong>{{ scale.grade_label }}</strong>: {{ scale.min_percentage }}–{{ scale.max_percentage }}%
+        {% if scale.grade_point %}· GPA {{ scale.grade_point }}{% endif %}
+      </span>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  <section class="card" style="margin-bottom:20px">
+    <div class="card-head">
+      <h2>Student Marks ({{ rows|length }})</h2>
+      <span class="muted" style="font-size:.8rem">Grades auto-assigned from grading scale on save.</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Roll No.</th><th>Student</th><th>Marks (out of {{ paper.max_marks }})</th><th>Current Grade</th><th>Remarks</th></tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td><code>{{ row.enrollment.roll_no|default:"—" }}</code></td>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ row.enrollment.student.user.first_name|first|upper }}{{ row.enrollment.student.user.last_name|first|upper }}</div>
+                <span class="cell-name">{{ row.enrollment.student.user.get_full_name }}</span>
+              </div>
+            </td>
+            <td>
+              <input type="number" name="marks_{{ row.enrollment.student_id }}"
+                     value="{{ row.marks }}"
+                     min="0" max="{{ paper.max_marks }}"
+                     step="0.5"
+                     style="width:100px;padding:6px 10px;border:1.5px solid var(--line-2);border-radius:var(--r-sm);font-size:.875rem;background:var(--surface-1);color:var(--text-1)">
+            </td>
+            <td>
+              {% if row.result %}
+                {% if row.result.grade_label %}
+                  <span class="badge info">{{ row.result.grade_label }}</span>
+                {% else %}<span class="muted">—</span>{% endif %}
+              {% else %}<span class="muted">Not entered</span>{% endif %}
+            </td>
+            <td>
+              <input type="text" name="remarks_{{ row.enrollment.student_id }}"
+                     value="{{ row.remarks }}"
+                     placeholder="Optional"
+                     style="width:140px;padding:6px 10px;border:1.5px solid var(--line-2);border-radius:var(--r-sm);font-size:.8rem;background:var(--surface-1);color:var(--text-1)">
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No students enrolled in this section.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="card" style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <label style="display:flex;align-items:center;gap:8px;font-size:.875rem;cursor:pointer">
+      <input type="checkbox" name="publish_results" value="1">
+      Publish results immediately after saving
+    </label>
+    <div style="display:flex;gap:12px">
+      <a class="btn btn-outline" href="{% url 'web:exam_detail' exam_id=paper.exam_id %}">Cancel</a>
+      <button class="btn btn-primary" type="submit">Save Marks</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

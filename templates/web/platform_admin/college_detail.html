@@ -1,0 +1,120 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+
+{% block title %}{{ viewed_college.name }} · Platform Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ viewed_college.name }}</h1>
+    <p class="muted">
+      <code>{{ viewed_college.code }}</code> &nbsp;·&nbsp;
+      <span class="badge {{ viewed_college.status|college_status_class }}">{{ viewed_college.status|capfirst }}</span>
+    </p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:platform_dashboard' %}">&larr; All Colleges</a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+
+  {# ── Profile ─────────────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head"><h2>College Profile</h2></div>
+    <div style="padding:20px 24px;display:grid;gap:12px">
+      {% for label, value in profile_rows %}
+        <div class="detail-row">
+          <span class="detail-label">{{ label }}</span>
+          <span>{{ value|default:"—" }}</span>
+        </div>
+      {% empty %}
+        <div class="detail-row"><span class="detail-label">Name</span><span>{{ viewed_college.name }}</span></div>
+        <div class="detail-row"><span class="detail-label">Code</span><span>{{ viewed_college.code }}</span></div>
+        <div class="detail-row"><span class="detail-label">Email</span><span>{{ viewed_college.official_email|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-label">Phone</span><span>{{ viewed_college.official_phone|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-label">Subdomain</span><span>{{ viewed_college.subdomain|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-label">City</span><span>{{ viewed_college.city|default:"—" }}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span>{{ viewed_college.created_at|date:"N j, Y" }}</span></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ── Actions ─────────────────────────────────────────── #}
+  <section class="card">
+    <div class="card-head"><h2>Actions</h2></div>
+    <div style="padding:20px 24px;display:grid;gap:12px">
+      <form method="post">
+        {% csrf_token %}
+        {% if viewed_college.status == 'active' %}
+          <p class="muted" style="margin-bottom:10px;font-size:.84rem">Suspend this college to prevent all user logins.</p>
+          <button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger)" name="action" value="suspend" type="submit">
+            Suspend College
+          </button>
+        {% else %}
+          <p class="muted" style="margin-bottom:10px;font-size:.84rem">Reactivate this college to restore user access.</p>
+          <button class="btn btn-primary" name="action" value="activate" type="submit">
+            Reactivate College
+          </button>
+        {% endif %}
+      </form>
+    </div>
+  </section>
+</div>
+
+{# ── Subscription history ────────────────────────────────── #}
+<section class="card" style="margin-bottom:24px">
+  <div class="card-head"><h2>Subscriptions</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Plan</th><th>Status</th><th>Cycle</th><th>Trial ends</th><th>Period</th></tr>
+      </thead>
+      <tbody>
+        {% for sub in subscriptions %}
+          <tr>
+            <td><strong>{{ sub.plan.name }}</strong></td>
+            <td><span class="badge {{ sub.status|sub_status_class }}">{{ sub.status|capfirst }}</span></td>
+            <td>{{ sub.billing_cycle|capfirst }}</td>
+            <td>{{ sub.trial_ends_at|date:"M j, Y"|default:"—" }}</td>
+            <td>{{ sub.current_period_start|date:"M j" }} – {{ sub.current_period_end|date:"M j, Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty-state">No subscription records.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{# ── User list ───────────────────────────────────────────── #}
+<section class="card">
+  <div class="card-head"><h2>Users ({{ users|length }})</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                <span>{{ user.get_full_name|default:"—" }}</span>
+              </div>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>
+              {% for ur in user.user_roles.all %}
+                <span class="badge info" style="margin-right:4px">{{ ur.role.name }}</span>
+              {% empty %}<span class="muted">—</span>{% endfor %}
+            </td>
+            <td><span class="badge {{ user.status|user_status_class }}">{{ user.status|capfirst }}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="empty-state">No users in this college.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

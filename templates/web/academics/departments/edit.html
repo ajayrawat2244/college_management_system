@@ -1,0 +1,27 @@
+{% extends "web/base.html" %}
+{% block title %}Edit {{ dept.name }} · Departments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Edit Department</h1><p class="muted">{{ dept.code }} · {{ dept.name }}</p></div>
+  <a class="btn btn-outline" href="{% url 'web:department_list' %}">&larr; Back</a>
+</div>
+<div style="max-width:520px">
+  <section class="card">
+    <div style="padding:24px">
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>{{ field }}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:12px;margin-top:4px">
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+          <a class="btn btn-outline" href="{% url 'web:department_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

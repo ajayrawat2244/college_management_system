@@ -1,0 +1,85 @@
+{% extends "web/base.html" %}
+{% block title %}Platform Audit Log · SMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Platform Audit Log</h1>
+    <p class="muted">{{ page_subtitle }}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'web:platform_dashboard' %}">&larr; Platform</a>
+</div>
+
+<section class="card" style="margin-bottom:20px">
+  <form method="get" style="padding:16px 20px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+    <label class="field" style="flex:1;min-width:160px">
+      <span>College</span>
+      <input type="text" name="college" value="{{ college_q }}" placeholder="e.g. Sunrise College">
+    </label>
+    <label class="field" style="flex:1;min-width:160px">
+      <span>Actor (email)</span>
+      <input type="text" name="actor" value="{{ actor_q }}" placeholder="e.g. admin@college.com">
+    </label>
+    <label class="field" style="flex:1;min-width:140px">
+      <span>Action</span>
+      <input type="text" name="action" value="{{ action_q }}" placeholder="e.g. create">
+    </label>
+    <div style="display:flex;gap:8px;align-self:flex-end">
+      <button class="btn btn-primary" type="submit">Filter</button>
+      {% if college_q or actor_q or action_q %}
+        <a class="btn btn-outline" href="{% url 'web:platform_audit_log' %}">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Time</th><th>College</th><th>Actor</th><th>Action</th><th>Entity</th><th>IP</th><th>Details</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="white-space:nowrap;font-size:.78rem;color:var(--muted)">
+            {{ log.created_at|date:"M j, Y H:i:s" }}
+          </td>
+          <td style="font-size:.82rem">
+            {% if log.college %}
+              <code>{{ log.college.code }}</code>
+              <div class="muted" style="font-size:.72rem">{{ log.college.name|truncatechars:22 }}</div>
+            {% else %}<span class="muted">Platform</span>{% endif %}
+          </td>
+          <td>
+            {% if log.actor %}
+              <div class="cell-name">{{ log.actor.get_full_name|default:log.actor.email }}</div>
+              <div class="cell-sub">{{ log.actor.email }}</div>
+            {% else %}<span class="muted">System</span>{% endif %}
+          </td>
+          <td>
+            {% if log.action == 'create' %}<span class="badge success">Create</span>
+            {% elif log.action == 'update' %}<span class="badge info">Update</span>
+            {% elif log.action == 'delete' %}<span class="badge danger">Delete</span>
+            {% elif log.action == 'login' %}<span class="badge muted">Login</span>
+            {% elif log.action == 'logout' %}<span class="badge muted">Logout</span>
+            {% else %}<span class="badge muted">{{ log.action|capfirst }}</span>{% endif %}
+          </td>
+          <td><code style="font-size:.75rem">{{ log.entity_type|default:"—" }}</code></td>
+          <td style="font-size:.78rem;color:var(--muted)">{{ log.ip_address|default:"—" }}</td>
+          <td style="font-size:.78rem;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="{{ log.changes|default:'' }}">
+            {{ log.changes|default:""|truncatechars:50 }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-state">No audit entries found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if total > 200 %}
+    <div style="padding:12px 20px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line-1)">
+      Showing 200 of {{ total }} entries. Use filters to narrow results.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

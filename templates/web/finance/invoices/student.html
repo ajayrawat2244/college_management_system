@@ -1,0 +1,74 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}My Fees · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>My Fees</h1>
+    {% if account %}
+      <p class="muted">Account: {{ account.fee_structure.name }}</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if total_dues > 0 %}
+  <div class="alert alert-warning" style="margin-bottom:20px">
+    You have <strong>₹{{ total_dues|floatformat:2 }}</strong> outstanding. Contact the fee counter to make a payment.
+  </div>
+{% endif %}
+
+{% if not account %}
+  <div class="card" style="padding:48px;text-align:center">
+    <p class="muted">No fee account found. Please contact your college administrator.</p>
+  </div>
+{% else %}
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+
+    <section class="card">
+      <div class="card-head"><h2>My Invoices</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Invoice No.</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Due</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for inv in invoices %}
+            <tr>
+              <td><code>{{ inv.invoice_no }}</code></td>
+              <td>₹{{ inv.total_amount|floatformat:2 }}</td>
+              <td style="color:#166534;font-weight:600">₹{{ inv.paid_amount|floatformat:2 }}</td>
+              <td style="{% if inv.balance_amount > 0 %}color:var(--danger);font-weight:700{% endif %}">₹{{ inv.balance_amount|floatformat:2 }}</td>
+              <td style="font-size:.8rem;color:var(--muted)">{{ inv.due_date|date:"M j, Y"|default:"—" }}</td>
+              <td>
+                {% if inv.status == 'paid' %}<span class="badge success">Paid</span>
+                {% elif inv.status == 'part_paid' %}<span class="badge warning">Part Paid</span>
+                {% elif inv.status == 'overdue' %}<span class="badge danger">Overdue</span>
+                {% elif inv.status == 'issued' %}<span class="badge info">Issued</span>
+                {% else %}<span class="badge muted">{{ inv.status|capfirst }}</span>{% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty-state">No invoices found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Payment History</h2></div>
+      <div style="padding:0">
+        {% for p in payments %}
+          <div style="padding:12px 20px;border-bottom:1px solid var(--line-1);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <code style="font-size:.78rem">{{ p.receipt_no }}</code>
+              <div class="muted" style="font-size:.75rem">{{ p.payment_date|date:"N j, Y" }} · {{ p.payment_mode|capfirst }}</div>
+            </div>
+            <strong style="color:#166534">₹{{ p.amount|floatformat:2 }}</strong>
+          </div>
+        {% empty %}
+          <p class="muted" style="padding:20px;text-align:center">No payments yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+{% endif %}
+{% endblock %}

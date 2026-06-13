@@ -1,0 +1,32 @@
+{% extends "web/base.html" %}
+{% block title %}Attendance Report · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Attendance Report</h1><p class="muted">Session counts across all active subject offerings.</p></div>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Subject</th><th>Section / Program</th><th>Term</th><th>Teacher</th><th>Sessions</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for offering in offerings %}
+        <tr>
+          <td><strong>{{ offering.subject.name }}</strong></td>
+          <td>{{ offering.section.name }} / {{ offering.section.batch.program.name }}</td>
+          <td>{{ offering.term.name|default:"—" }}</td>
+          <td>{% if offering.teacher %}{{ offering.teacher.user.get_full_name }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td><span class="badge info">{{ offering.session_count }}</span></td>
+          <td style="text-align:right">
+            <a class="btn btn-outline btn-sm" href="{% url 'web:attendance_session_list' %}">View Sessions</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty-state">No active offerings found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

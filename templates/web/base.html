@@ -4,26 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{% if college %}{{ college.name }} · {% endif %}Student Management System{% endblock %}</title>
+  <title>{% block title %}{% if college %}{{ college.name }} · {% endif %}SMS{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Poppins:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,400&family=Poppins:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,400&family=Nunito:wght@300..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   {% block extra_css %}{% endblock %}
-  {# Restore theme preference before first paint to avoid flash #}
   <script>
-    (function() {
+    (function(){
       try {
-        var s = localStorage.getItem('sms_sidebar_theme') || 'navy';
-        var t = localStorage.getItem('sms_topbar_theme')  || 'white';
-        var r = localStorage.getItem('sms_radius')        || 'medium';
-        var f = localStorage.getItem('sms_font')          || 'inter';
-        var html = document.documentElement;
-        html.setAttribute('data-sidebar-theme', s);
-        html.setAttribute('data-topbar-theme',  t);
-        html.setAttribute('data-radius',         r);
-        html.setAttribute('data-font',           f);
-      } catch(e) {}
+        var h = document.documentElement;
+        h.setAttribute('data-sidebar-theme', localStorage.getItem('sms_sidebar_theme') || 'navy');
+        h.setAttribute('data-topbar-theme',  localStorage.getItem('sms_topbar_theme')  || 'white');
+        h.setAttribute('data-radius',        localStorage.getItem('sms_radius')        || 'medium');
+        h.setAttribute('data-font',          localStorage.getItem('sms_font')          || 'inter');
+      } catch(e){}
     })();
   </script>
 </head>
@@ -35,6 +30,12 @@
       {% include "web/partials/_topbar.html" %}
       <main class="content-wrap">
         {% include "web/partials/_messages.html" %}
+        {% if subscription_status == 'trial' and trial_days is not None %}
+          <div class="alert alert-warning" style="margin-bottom:20px">
+            <strong>Trial plan</strong> — {{ trial_days }} day{{ trial_days|pluralize }} remaining.
+            <a href="{% url 'web:subscription_status' %}" style="margin-left:12px;font-weight:700">Upgrade &rarr;</a>
+          </div>
+        {% endif %}
         {% block content %}{% endblock %}
       </main>
     </div>

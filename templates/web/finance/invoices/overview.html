@@ -1,0 +1,102 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Finance Overview · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Finance Overview</h1><p class="muted">Fee collection summary and recent activity.</p></div>
+  <a class="btn btn-primary" href="{% url 'web:invoice_create' %}">+ Issue Invoice</a>
+</div>
+
+<div class="stats-grid" style="margin-bottom:24px">
+  <article class="stat-card stat-card--indigo">
+    <div class="stat-inner">
+      <div><span>Total Issued</span><strong style="font-size:1.5rem">₹{{ totals.total_issued|default:0|floatformat:0 }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+    </div>
+    <div class="stat-sub">across all invoices</div>
+  </article>
+  <article class="stat-card stat-card--teal">
+    <div class="stat-inner">
+      <div><span>Collected</span><strong style="font-size:1.5rem">₹{{ totals.total_paid|default:0|floatformat:0 }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+    </div>
+    <div class="stat-sub">payments received</div>
+  </article>
+  <article class="stat-card stat-card--dark">
+    <div class="stat-inner">
+      <div><span>Outstanding</span><strong style="font-size:1.5rem">₹{{ totals.total_balance|default:0|floatformat:0 }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+    </div>
+    <div class="stat-sub">balance due</div>
+  </article>
+  <article class="stat-card stat-card--lavender">
+    <div class="stat-inner">
+      <div><span>Accounts</span><strong>{{ total_accounts }}</strong></div>
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+    </div>
+    <div class="stat-sub">student fee accounts</div>
+  </article>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Recent Payments</h2>
+      <a class="btn btn-outline btn-sm" href="{% url 'web:invoice_list' %}">All Invoices</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>Receipt No.</th><th>Amount</th><th>Mode</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for p in recent_payments %}
+          <tr>
+            <td>
+              <div class="cell-user">
+                <div class="cell-avatar">{{ p.fee_invoice.student_fee_account.student.user.first_name|first|upper }}{{ p.fee_invoice.student_fee_account.student.user.last_name|first|upper }}</div>
+                <div>
+                  <div class="cell-name">{{ p.fee_invoice.student_fee_account.student.user.get_full_name }}</div>
+                  <div class="cell-sub">{{ p.fee_invoice.invoice_no }}</div>
+                </div>
+              </div>
+            </td>
+            <td><code>{{ p.receipt_no }}</code></td>
+            <td><strong>₹{{ p.amount|floatformat:2 }}</strong></td>
+            <td><span class="chip">{{ p.payment_mode|capfirst }}</span></td>
+            <td style="font-size:.8rem;color:var(--muted)">{{ p.payment_date|date:"N j, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-state">No payments recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Invoice Status</h2></div>
+    <div style="padding:16px 20px;display:grid;gap:10px">
+      {% for key, count in status_breakdown.items %}
+        <div class="detail-row">
+          <span class="detail-label">{{ key|capfirst|cut:"_" }}</span>
+          <span class="badge {% if key == 'paid' %}success{% elif key == 'overdue' %}danger{% elif key == 'part_paid' %}warning{% else %}muted{% endif %}">{{ count }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <div style="padding:0 20px 16px;display:grid;gap:8px">
+      <a class="btn btn-outline btn-sm btn-full" href="{% url 'web:invoice_list' %}">View All Invoices</a>
+      <a class="btn btn-outline btn-sm btn-full" href="{% url 'web:fee_account_list' %}">Student Accounts</a>
+      <a class="btn btn-outline btn-sm btn-full" href="{% url 'web:fee_structure_list' %}">Fee Structures</a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

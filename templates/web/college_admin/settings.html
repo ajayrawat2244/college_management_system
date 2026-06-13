@@ -1,0 +1,60 @@
+{% extends "web/base.html" %}
+{% block title %}College Settings · {{ college.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>College Settings</h1>
+    <p class="muted">Manage your institution profile and preferences.</p>
+  </div>
+</div>
+
+<div style="max-width:680px">
+  <section class="card">
+    <div class="card-head"><h2>Institution Profile</h2></div>
+    <div style="padding:24px">
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom:16px">
+          {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+          <label class="field {% if field.errors %}field--error{% endif %}">
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {% if field.help_text %}<small class="muted" style="font-size:.75rem">{{ field.help_text }}</small>{% endif %}
+            {% if field.errors %}<span style="color:var(--danger);font-size:.78rem">{{ field.errors|first }}</span>{% endif %}
+          </label>
+        {% endfor %}
+        <div style="display:flex;gap:12px;margin-top:8px">
+          <button class="btn btn-primary" type="submit">Save Changes</button>
+          <a class="btn btn-outline" href="{% url 'web:admin_dashboard' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  {# ── Danger zone ─────────────────────────────────────── #}
+  <section class="card" style="margin-top:24px;border-color:var(--danger)">
+    <div class="card-head">
+      <h2 style="color:var(--danger)">Danger Zone</h2>
+    </div>
+    <div style="padding:20px 24px">
+      <p class="muted" style="margin-bottom:16px">These actions are irreversible. Proceed with caution.</p>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger)" disabled>
+          Suspend College
+        </button>
+        <button class="btn btn-outline" style="border-color:var(--danger);color:var(--danger)" disabled>
+          Archive College
+        </button>
+      </div>
+      <p class="muted" style="margin-top:10px;font-size:.78rem">Contact platform support to perform these actions.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

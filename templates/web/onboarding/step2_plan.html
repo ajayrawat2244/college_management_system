@@ -1,42 +1,84 @@
 {% extends "web/onboarding/base_wizard.html" %}
+{% load web_tags %}
 
 {% block wizard_form %}
-<form method="post" class="form-grid" novalidate>
+<form method="post" novalidate>
   {% csrf_token %}
 
-  <div class="form-section-label">Billing Cycle</div>
-  <div class="radio-group" role="group" aria-label="Billing cycle">
+  {# ── Billing cycle ─────────────────────────────────── #}
+  <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 12px">Billing Cycle</p>
+  <div style="display:flex;gap:12px;margin-bottom:28px">
     {% for radio in form.billing_cycle %}
-      <label class="radio-card">
+      <label style="
+        flex:1;display:flex;align-items:center;gap:10px;
+        padding:14px 16px;border-radius:var(--r-sm);
+        border:2px solid var(--line-2);background:var(--card-raised);
+        cursor:pointer;transition:all .15s ease;font-size:.875rem;font-weight:500
+      ">
         {{ radio.tag }}
-        <span>{{ radio.choice_label }}</span>
+        {{ radio.choice_label }}
       </label>
     {% endfor %}
   </div>
-  {% if form.billing_cycle.errors %}
-    <span class="field-error">{{ form.billing_cycle.errors|first }}</span>
+
+  {# ── Plan cards ────────────────────────────────────── #}
+  <p style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 12px">Select a Plan</p>
+
+  {% if plans %}
+    <div style="display:grid;gap:12px;margin-bottom:24px">
+      {% for plan in plans %}
+        <label style="
+          display:flex;align-items:flex-start;gap:14px;
+          padding:18px 20px;border-radius:var(--r-sm);
+          border:2px solid var(--line-2);background:var(--card-raised);
+          cursor:pointer;transition:border-color .15s ease,background .15s ease
+        ">
+          {% for radio in form.plan %}
+            {% if radio.data.value == plan.id|stringformat:"s" %}
+              {{ radio.tag }}
+            {% endif %}
+          {% endfor %}
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+              <strong style="font-size:.92rem">{{ plan.name }}</strong>
+              <span style="font-size:.84rem;color:var(--muted)">
+                ₹{{ plan.price_monthly }}/mo &nbsp;·&nbsp; ₹{{ plan.price_yearly }}/yr
+              </span>
+            </div>
+            {% if plan.description %}<p style="font-size:.82rem;color:var(--muted);margin:0 0 10px">{{ plan.description }}</p>{% endif %}
+            {% if plan.plan_features.all %}
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                {% for pf in plan.plan_features.all %}
+                  {% if pf.is_enabled %}
+                    <span class="chip" style="font-size:.7rem">{{ pf.feature.name }}</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </label>
+      {% endfor %}
+    </div>
+  {% else %}
+    {# Fallback: plain radio list when no plans seeded yet #}
+    <div style="margin-bottom:24px">
+      {% for radio in form.plan %}
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--line-2);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer">
+          {{ radio.tag }} {{ radio.choice_label }}
+        </label>
+      {% endfor %}
+    </div>
   {% endif %}
 
-  <div class="form-section-label" style="margin-top:1.5rem">Select a Plan</div>
-  <div class="plan-cards" role="group" aria-label="Subscription plan">
-    {% for radio in form.plan %}
-      <label class="plan-card">
-        {{ radio.tag }}
-        <div class="plan-card-body">
-          <strong>{{ radio.choice_label }}</strong>
-        </div>
-      </label>
-    {% endfor %}
-  </div>
   {% if form.plan.errors %}
-    <span class="field-error">{{ form.plan.errors|first }}</span>
+    <p style="color:var(--danger);font-size:.78rem;margin-bottom:12px">{{ form.plan.errors|first }}</p>
   {% endif %}
 
-  <p class="muted" style="margin-top:1rem;font-size:.85rem">
-    All plans include a 14-day free trial. No credit card required to start.
+  <p style="font-size:.78rem;color:var(--muted);margin-bottom:20px">
+    All plans include a 14-day free trial. No credit card required.
   </p>
 
-  <div style="display:flex;gap:1rem;margin-top:1.5rem">
+  <div style="display:flex;gap:12px">
     <a class="btn btn-outline" href="{% url 'web:register_step1' %}">&larr; Back</a>
     <button class="btn btn-primary" type="submit">Continue to Domain Setup &rarr;</button>
   </div>

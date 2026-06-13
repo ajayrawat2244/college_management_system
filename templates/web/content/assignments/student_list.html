@@ -1,0 +1,58 @@
+{% extends "web/base.html" %}
+{% block title %}My Assignments · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>My Assignments</h1><p class="muted">Pending and completed work from your teachers.</p></div>
+</div>
+
+{% if assignments %}
+  <div style="display:grid;gap:16px">
+    {% for a in assignments %}
+      {% with my_sub=my_submissions|default:{}|dictsortreversed:"id" %}
+      {% with sub=my_submissions|getitem:a.id %}
+      <article class="card" style="display:grid;grid-template-columns:1fr auto;gap:20px;padding:20px 24px;align-items:start">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <h3 style="font-size:.96rem;font-weight:700;margin:0;color:var(--text-1)">{{ a.title }}</h3>
+            {% if sub %}
+              {% if sub.status == 'graded' %}<span class="badge success">Graded</span>
+              {% elif sub.status == 'late' %}<span class="badge warning">Late</span>
+              {% else %}<span class="badge info">Submitted</span>{% endif %}
+            {% elif a.status == 'closed' %}
+              <span class="badge muted">Closed</span>
+            {% else %}
+              <span class="badge danger">Pending</span>
+            {% endif %}
+          </div>
+          <p class="muted" style="font-size:.82rem;margin:0 0 6px">
+            {{ a.subject_offering.subject.name }}
+          </p>
+          {% if a.description %}
+            <p style="font-size:.84rem;color:var(--text-2);margin:0;line-height:1.5">{{ a.description|truncatechars:140 }}</p>
+          {% endif %}
+          <div style="display:flex;gap:16px;margin-top:10px;font-size:.78rem;color:var(--muted)">
+            <span>Max: <strong>{{ a.max_marks }}</strong> marks</span>
+            {% if a.due_at %}<span>Due: <strong>{{ a.due_at|date:"N j, Y H:i" }}</strong></span>{% endif %}
+            {% if sub and sub.marks_obtained is not None %}<span style="color:#166534;font-weight:700">Marks: {{ sub.marks_obtained }} / {{ a.max_marks }}</span>{% endif %}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          {% if not sub and a.status == 'published' %}
+            <a class="btn btn-primary btn-sm" href="{% url 'web:submit_assignment' assignment_id=a.id %}">Submit</a>
+          {% elif sub %}
+            <a class="btn btn-outline btn-sm" href="{% url 'web:submit_assignment' assignment_id=a.id %}">
+              {% if a.status == 'published' %}Re-submit{% else %}View{% endif %}
+            </a>
+          {% endif %}
+        </div>
+      </article>
+      {% endwith %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="padding:60px;text-align:center">
+    <p class="muted">No assignments have been posted for your classes yet.</p>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "web/base.html" %}
+{% load web_tags %}
+{% block title %}Timetable · {{ college.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Timetable</h1><p class="muted">Weekly class schedule.</p></div>
+  {% has_role 'college_admin' as is_admin %}
+  {% if is_admin or request.user.is_superuser %}
+    <a class="btn btn-primary" href="{% url 'web:timetable_create' %}">+ Add Entry</a>
+  {% endif %}
+</div>
+
+{% if timetable %}
+  {% for day_name, entries in timetable %}
+  <section class="card" style="margin-bottom:20px">
+    <div class="card-head"><h2>{{ day_name }}</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Subject</th><th>Section / Batch</th><th>Teacher</th><th>Room</th></tr></thead>
+        <tbody>
+          {% for entry in entries %}
+          <tr>
+            <td style="white-space:nowrap;font-variant-numeric:tabular-nums">
+              {{ entry.start_time|time:"H:i" }} – {{ entry.end_time|time:"H:i" }}
+            </td>
+            <td><strong>{{ entry.subject_offering.subject.name }}</strong></td>
+            <td>{{ entry.subject_offering.section.name }} / {{ entry.subject_offering.section.batch.program.name }}</td>
+            <td>{% if entry.subject_offering.teacher %}{{ entry.subject_offering.teacher.user.get_full_name }}{% else %}<span class="muted">—</span>{% endif %}</td>
+            <td>{{ entry.room|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endfor %}
+{% else %}
+  <section class="card">
+    <div style="padding:60px;text-align:center">
+      <p class="muted">No timetable entries yet.</p>
+      {% if is_admin or request.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'web:timetable_create' %}" style="margin-top:12px">Add First Entry</a>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+{% endblock %}
